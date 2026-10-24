@@ -174,6 +174,7 @@ def _themes_of(path: str) -> list[str]:
 
 def _use_map(project: str) -> dict:
     """采集启动时记的「训练用途」：文件名 → {kind, use}（pretrain/continue/sft/lora）。"""
+    import _host                                    # 局部导入：插件由 bridge.py 注入，避免加载期循环依赖
     p = os.path.join(project, "data", "_collect_use.json")
     data = _host._read_json_atomic(p, {})            # 读也拿锁（2026-10-24）
     return data if isinstance(data, dict) else {}
