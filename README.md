@@ -6,7 +6,11 @@ EAI Studio 是一个 Windows 桌面应用，把大模型微调的整条链路收
 
 数据、权重、训练过程都留在本机；除了你自己配置的云端模型接口，软件不会把任何东西发到外面。
 
-![EAI Studio](docs/setup-zh.png)
+<p align="center">
+  <img src="docs/ui-zh-distill.png" width="32%" alt="语料蒸馏" />
+  <img src="docs/ui-zh-pretrain.png" width="32%" alt="预训练" />
+  <img src="docs/ui-zh-chat.png" width="32%" alt="对话验证" />
+</p>
 
 你可以用它做这些事：
 
@@ -31,7 +35,11 @@ EAI Studio is a Windows desktop app that puts the whole fine-tuning loop in one 
 
 Your data, weights and training runs stay on your machine; nothing leaves the computer unless you configure a cloud model API yourself.
 
-![EAI Studio](docs/setup-en.png)
+<p align="center">
+  <img src="docs/ui-en-distill.png" width="32%" alt="Corpus Distill" />
+  <img src="docs/ui-en-pretrain.png" width="32%" alt="Pretrain" />
+  <img src="docs/ui-en-chat.png" width="32%" alt="Chat Test" />
+</p>
 
 What you can do with it:
 
