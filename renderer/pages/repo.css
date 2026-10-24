@@ -1,0 +1,676 @@
+/* ============================================================
+   EAI_Studio · pages/repo.css ——「仓库」页样式（工作台）
+   只复用 styles.css 的 .card / .seg / .seg-opt；本页专属类 rp-*。
+   ============================================================ */
+
+.rp-segwrap { margin: 0 0 12px; }
+.rp-seg { width: max-content; }
+
+/* 底部留白 30px（用户 2026-10-16：空白卡显示不全）—— 页容器 .page 是 height:100% 的
+   flex，子内容溢出时页的 padding-bottom 不跟着撑 scrollHeight，最后一行卡会贴死窗口
+   下沿（实测卡底 = 内容区底、间隙 0）；补在面板上才进滚动高度 */
+.rp-panels { min-height: 200px; padding-bottom: 30px; }
+
+/* 卡片网格：窄屏自适应列数 */
+.rp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+}
+/* display:grid 会盖掉 hidden 属性的 UA display:none —— 切视图必须显式隐藏 */
+.rp-grid[hidden] { display: none; }
+
+.rp-card { padding: 12px 14px 10px; }
+
+.rp-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.rp-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* 状态小球：绿=可用/存在、黄=可用但格式存疑、灰=尚无、红=异常 */
+.rp-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+  background: #6b7280;
+}
+.rp-dot.ok { background: #3fb950; }
+.rp-dot.mid { background: #d29922; }
+.rp-dot.off { background: #6b7280; }
+.rp-dot.err { background: #f85149; }
+
+/* 标题下方一行：训练方式（可改下拉）+ 数据类型（用户 2026-10-15：两框等高） */
+.rp-tags { display: flex; align-items: center; gap: 8px; margin: 8px 0 2px; }
+.rp-use-pick {
+  flex: none;
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 24px; box-sizing: border-box;
+  padding: 0 8px;
+  border: 1px solid var(--LINE); border-radius: 7px;
+  background: var(--CARD_ALT); color: var(--INK2);
+  font-size: 11px; cursor: pointer; white-space: nowrap;
+}
+.rp-use-pick:hover { color: var(--INK); border-color: var(--INK3); }
+/* 标注框加宽后不截断文字（用户 2026-10-16） */
+.pick-fit .pick-label { overflow: visible; text-overflow: clip; }
+/* 卡片里的两个标注框放不下时截断成「Continue Pre…」（用户 2026-10-22）：
+   只在 JS 判定需要（.pick-ell）时生效，中文照旧整词显示；悬停 title 里是完整文字。 */
+.rp-use-pick .pick-label { min-width: 0; }
+.rp-use-pick.pick-ell .pick-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rp-use-pick .pick-caret { flex: none; }
+.rp-tags .rp-tag {
+  height: 24px; box-sizing: border-box;
+  display: inline-flex; align-items: center;
+  margin: 0; padding: 0 8px;
+}
+/* 类型标分色（用户 2026-10-16）：纯文本绿系、对话强调蓝系，一眼分清（双类名压过基础 .rp-tag） */
+.rp-tag.rp-tag-plain {
+  color: var(--OK);
+  border-color: color-mix(in srgb, var(--OK) 45%, transparent);
+  background: color-mix(in srgb, var(--OK) 12%, transparent);
+}
+.rp-tag.rp-tag-chat {
+  color: var(--ACCENT);
+  border-color: var(--ACCENT_LINE);
+  background: var(--ACCENT_SOFT);
+}
+/* 训练方式标签分色（用户 2026-10-16）：六种训练/处理各一色，双类名压基础 .rp-tag */
+.rp-tag.rp-tag-pretrain {           /* 预训练：强调蓝系 */
+  color: var(--ACCENT);
+  border-color: var(--ACCENT_LINE);
+  background: var(--ACCENT_SOFT);
+}
+.rp-tag.rp-tag-continue {           /* 继续预训练：绿系 */
+  color: var(--OK);
+  border-color: color-mix(in srgb, var(--OK) 45%, transparent);
+  background: color-mix(in srgb, var(--OK) 12%, transparent);
+}
+.rp-tag.rp-tag-sft {                /* 指令微调：红系 */
+  color: var(--ERR);
+  border-color: color-mix(in srgb, var(--ERR) 45%, transparent);
+  background: var(--ERR_SOFT);
+}
+.rp-tag.rp-tag-lora {               /* LoRA 微调：紫系（强调蓝×红） */
+  color: color-mix(in srgb, var(--ACCENT) 55%, var(--ERR));
+  border-color: color-mix(in srgb, var(--ACCENT) 25%, var(--ERR) 20%, transparent);
+  background: color-mix(in srgb, var(--ACCENT) 8%, var(--ERR) 6%, transparent);
+}
+.rp-tag.rp-tag-merge {              /* LoRA 合并：琥珀系（与 LoRA 微调的紫、裁切的青分开） */
+  color: rgb(148, 116, 58);
+  border-color: rgba(148, 116, 58, .38);
+  background: rgba(148, 116, 58, .10);
+}
+.rp-tag.rp-tag-prune {              /* 模型裁切：青系（绿×强调蓝） */
+  color: color-mix(in srgb, var(--OK) 55%, var(--ACCENT));
+  border-color: color-mix(in srgb, var(--OK) 22%, var(--ACCENT) 18%, transparent);
+  background: color-mix(in srgb, var(--OK) 8%, var(--ACCENT) 6%, transparent);
+}
+.rp-tag.rp-tag-quant {              /* 量化：墨系 */
+  color: var(--INK2);
+  border-color: var(--LINE);
+  background: var(--CARD_ALT);
+}
+
+/* 右键卡片的大弹窗：完整数据集（层级低于 AI 窗口）。放文件末尾+双类名，
+   免得被基础 .rp-modal 的定宽盖掉（2026-10-15 实测 680 宽→改后按 1100 走） */
+/* 用户 2026-10-15：背景色直接填满文本区间（不内画圆角框）、隐滚动条；
+   上间距不变(10px)、下间距同上、左右 12px（参考问答内衬） */
+.rp-ds-wrap {
+  position: relative;
+  flex: 1; min-height: 0;
+  display: flex;
+  background: var(--CARD_ALT);
+  border-radius: 0 0 12px 12px;
+  overflow: hidden;
+}
+.rp-ds-body {
+  flex: 1; min-height: 0; overflow: auto;
+  margin-top: 0;
+  background: var(--CARD_ALT);
+  padding: 10px 12px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* 用户 2026-10-22：查看内容弹窗里的正文要能用鼠标选中复制（和数据中心一样）；
+     全局 body 是 user-select:none，这里要显式放开，否则整块拖不动选区 */
+  -webkit-user-select: text;
+  user-select: text;
+  cursor: text;
+}
+.rp-ds-body * {
+  -webkit-user-select: text;
+  user-select: text;
+}
+.rp-ds-body::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.rp-ds-pre {
+  margin: 0;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 12px; line-height: 1.55;
+  white-space: pre-wrap; word-break: break-all;
+  color: var(--INK);
+}
+
+.rp-tag {
+  margin: 8px 0 2px;
+  width: max-content;
+  padding: 2px 8px;
+  border: 1px solid var(--LINE);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--INK3);
+}
+
+.rp-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  font-size: 12px;
+}
+.rp-k { color: var(--INK3); flex: none; }
+.rp-v {
+  color: var(--INK);
+  min-width: 0;
+}
+.rp-mono { font-family: ui-monospace, Consolas, monospace; }
+
+.rp-empty {
+  grid-column: 1 / -1;
+  padding: 24px 2px;
+  color: var(--INK3);
+}
+.rp-empty.rp-err { color: #f85149; }
+
+/* ---------- 筛选栏（每视图一条）：按图一（数据管理工具栏）口径，用户 2026-10-15 ——
+   控件同款输入井（radius 8 / CARD_ALT / LINE），整组钉行尾右侧、搜索在前筛选在后 ---------- */
+.rp-view[hidden] { display: none; }
+.rp-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+  justify-content: flex-end;
+}
+.rp-bar .pick {
+  width: auto;
+  height: 31px;
+  box-sizing: border-box;
+  padding: 5px 9px;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);          /* 同上：下拉当前值不刷黑（用户 2026-10-20） */
+  font-size: 10pt;
+}
+.rp-search,
+.rp-date {
+  height: 31px;
+  box-sizing: border-box;
+  padding: 5px 9px;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);          /* 文字色对齐数据中心·数据集页（用户 2026-10-20：原来太深） */
+  font-family: inherit;
+  font-size: 10pt;
+}
+.rp-search { width: 240px; flex: 0 0 auto; height: 31px; }   /* 与旁边按钮/下拉同高（用户 2026-10-15） */
+/* 搜索栏高亮同蒸馏页数据管理（用户 2026-10-16）：去默认焦点环、框线转 ACCENT_LINE（同 .a-search:focus） */
+.rp-search:focus { outline: none; border-color: var(--ACCENT_LINE); }
+.rp-date { width: 132px; padding: 5px 28px 5px 9px; cursor: pointer; }
+.rp-date:focus { outline: none; border-color: var(--ACCENT_LINE); }
+.rp-dl {
+  font-size: 11px;
+  color: var(--INK3);
+  flex: none;
+}
+.rp-search::placeholder { color: var(--INK3); }
+
+/* ---------- 「+」空白卡：只留加号图标（外圈大细圆已去，用户 2026-10-15） ---------- */
+.rp-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 148px;
+  position: relative;   /* 「示例」钮钉右下角用（用户 2026-10-15） */
+}
+.rp-add-btn {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--INK3);
+  cursor: pointer;
+  transition: color 0.18s cubic-bezier(.2, .7, .3, 1),
+              transform 0.3s cubic-bezier(.34, 1.32, .5, 1);
+}
+.rp-add-btn:hover { color: var(--ACCENT); }
+.rp-add-btn:active { transform: scale(0.96); transition-duration: 0.12s; }
+
+/* 卡片悬停：轻微高亮边框（用户 2026-10-15：每张卡都要、但不用太明显） */
+.rp-grid .card {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.rp-grid .card:hover {
+  border-color: var(--ACCENT_LINE);
+  box-shadow: 0 2px 10px rgba(20, 30, 70, 0.06);
+}
+
+/* 筛选下拉加宽 30%（用户 2026-10-15）：实测原宽 类型 92.3 / 训练方式 119 → 120 / 155；
+   弹层宽 = 控件宽（_registry.js pop.style.width=r.width），控件加宽弹层一并加宽。 */
+.rp-bar .pick.rp-pick-narrow { width: 120px; }
+.rp-bar .pick.rp-pick-wide { width: 155px; }
+
+/* ---------- 格式示例（用户 2026-10-15：从数据集页挪到仓库页） ---------- */
+.rp-sample-btn {
+  margin-left: 4px;                         /* 钉在筛选栏最右（用户 2026-10-20：空白卡已删） */
+  height: 31px; box-sizing: border-box; padding: 5px 12px;
+  border: 1px solid var(--LINE); border-radius: 8px;
+  background: var(--CARD_ALT); color: var(--INK2);
+  font-family: inherit; font-size: 10pt; cursor: pointer;
+}
+.rp-sample-btn:hover { border-color: var(--ACCENT_LINE); color: var(--ACCENT_TEXT); }
+/* 「示例」钉空白添加卡右下角：默认不显示，鼠标移进卡片才显现（用户 2026-10-15） */
+.rp-sample-corner {
+  position: absolute; right: 10px; bottom: 10px;
+  margin-right: 0;
+  opacity: 0; pointer-events: none;
+  transition: opacity .15s ease;
+}
+.rp-add:hover .rp-sample-corner { opacity: 1; pointer-events: auto; }
+.rp-mask {
+  position: fixed; inset: 0; z-index: 80;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(8, 10, 16, .38);
+}
+/* 详细信息里的 Loss 曲线（用户 2026-10-20） */
+.rp-det-lossrow { align-items: flex-start; }
+.rp-det-lossrow > .rp-det-k { padding-top: 6px; }
+.rp-loss-chart {
+  width: 100%; height: 168px; box-sizing: border-box;
+  background: var(--LOG_BG); border: 1px solid var(--LINE); border-radius: 8px;
+  overflow: hidden;
+}
+.rp-loss-chart svg { width: 100%; height: 100%; display: block; }
+.rp-loss-empty { padding: 14px; font-size: 9pt; color: var(--INK3); }
+
+.rp-modal {
+  width: min(680px, 80vw); max-height: 72vh;
+  display: flex; flex-direction: column;
+  background: var(--CARD); border: 1px solid var(--LINE); border-radius: 12px;
+  box-shadow: 0 18px 48px rgba(8, 10, 16, .35);
+}
+/* 标题栏与内容之间有界限（用户 2026-10-15：和 AI 窗口一样） */
+.rp-modal-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px 10px 18px;
+  border-bottom: 1px solid var(--SIDE_DIVIDER);
+  flex: none;
+}
+.rp-modal-title { flex: 1 1 auto; font-size: 11pt; font-weight: 600; color: var(--INK); }
+.rp-modal-x {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; padding: 0;
+  border: 0; border-radius: 6px; background: transparent;
+  color: var(--INK2); cursor: pointer;
+}
+.rp-modal-x:hover { background: var(--CLOSE_HOVER); color: var(--INK); }
+.rp-modal-body {
+  display: flex; flex-direction: column; gap: 10px;
+  margin: 10px 18px 18px; overflow: auto;
+}
+.rp-modal-section { font-size: 11pt; font-weight: 600; color: var(--INK); margin-top: 6px; }
+.rp-modal-hint { font-size: 9.5pt; color: var(--INK3); line-height: 1.55; }
+.rp-modal-item { display: flex; flex-direction: column; gap: 6px; }
+.rp-modal-name { font-size: 10pt; line-height: 1.3; color: var(--INK2); }
+.rp-modal-pre {
+  margin: 0; padding: 12px 14px; white-space: pre-wrap;
+  background: var(--CARD_ALT); border: 1px solid var(--LINE); border-radius: 8px;
+  font-family: "Cascadia Mono", "Consolas", monospace; font-size: 9pt; line-height: 1.55; color: var(--INK);
+}
+
+/* 右键卡片的大弹窗（放在最后压过基础 .rp-modal 定宽） */
+.rp-modal.rp-ds-modal {
+  width: min(1100px, 92vw);
+  height: min(78vh, 720px);
+  display: flex; flex-direction: column;
+}
+
+/* 问答数据集结构化排版（用户 2026-10-15）：每条一卡，问/答分行 */
+/* 「显示更多」（用户 2026-10-23）：内容框不再一次画完全部记录，先画 200 条，
+   底部这个按钮点一次追加 200 条，画完自己消失 */
+.rp-ds-more {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 2px;
+}
+.rp-ds-more-btn {
+  height: 26px;
+  padding: 0 14px;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-family: inherit;
+  font-size: 9pt;
+  cursor: pointer;
+  transition: background 90ms ease, color 90ms ease;
+}
+.rp-ds-more-btn:hover { background: var(--BTN2_BG); color: var(--BTN2_FG); }
+.rp-ds-more-btn:active { transform: scale(.96); }
+.rp-ds-rec {
+  padding: 12px 0;
+}
+/* 不同问答之间做分割线 */
+.rp-ds-rec + .rp-ds-rec {
+  border-top: 1px solid var(--LINE);
+}
+.rp-ds-rec-head {
+  font-size: 11px;
+  color: var(--INK3);
+  margin-bottom: 8px;
+}
+.rp-ds-qa { display: flex; gap: 8px; align-items: flex-start; margin-top: 8px; }
+.rp-ds-lab {
+  flex: none;
+  width: 20px; height: 20px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 6px;
+  font-size: 11px; font-weight: 600;
+}
+.rp-ds-q { background: var(--ACCENT_SOFT); color: var(--ACCENT_TEXT); }
+.rp-ds-a { background: var(--LINE); color: var(--INK2); }
+.rp-ds-qtext, .rp-ds-atext {
+  flex: 1 1 auto; min-width: 0;
+  font-size: 12.5px; line-height: 1.65;
+  color: var(--INK);
+  white-space: pre-wrap; word-break: break-word;
+}
+.rp-ds-note { color: var(--INK3); font-size: 12px; }
+
+/* 顶/底滚动渐隐（用户 2026-10-15）：约一行高、按距边距离显隐 */
+.rp-ds-fade {
+  position: absolute; left: 0; right: 0;
+  height: 22px;
+  pointer-events: none;
+  opacity: 0;
+}
+.rp-ds-fade-top { top: 0; background: linear-gradient(to bottom, var(--CARD_ALT) 20%, rgba(237, 239, 247, 0)); }
+.rp-ds-fade-bot { bottom: 0; background: linear-gradient(to top, var(--CARD_ALT) 20%, rgba(237, 239, 247, 0)); }
+
+/* ---------- 右键菜单（用户 2026-10-16） ---------- */
+.rp-menu {
+  position: fixed; z-index: 260;
+  min-width: 132px;
+  padding: 4px;
+  background: var(--CARD);
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(8, 10, 16, .22);
+}
+.rp-menu-item {
+  display: block; width: 100%;
+  border: 0; background: none;
+  text-align: left;
+  padding: 6px 10px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  white-space: nowrap;   /* 英文菜单项比中文长，别折成两行（用户 2026-10-22） */
+  color: var(--INK);
+  cursor: pointer;
+}
+.rp-menu-item:hover { background: var(--LINE); }
+.rp-menu-item.danger { color: var(--ERR); }
+/* 置灰项（用户 2026-10-20：被锁的「删除/批量删除」直接变灰、点不动） */
+.rp-menu-item:disabled,
+.rp-menu-item.danger:disabled {
+  color: var(--INK3);
+  opacity: .55;
+  cursor: default;
+}
+.rp-menu-item:disabled:hover { background: none; }
+.rp-menu-sep { height: 1px; margin: 4px 6px; background: var(--LINE); }
+
+/* ---------- 批量删除勾选（用户 2026-10-16） ---------- */
+.rp-sel-on { position: relative; cursor: pointer; }
+.rp-check {
+  position: absolute; top: 10px; right: 10px;
+  width: 20px; height: 20px;
+  border: 1.5px solid var(--INK3);
+  border-radius: 6px;
+  background: var(--CARD);
+  color: transparent;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.rp-check.on {
+  background: var(--ACCENT);
+  border-color: var(--ACCENT_LINE);
+  color: var(--INK_INV);   /* 白勾：ACCENT_TEXT 压 accent 底发暗（用户 2026-10-16，同 nt-ok） */
+}
+.rp-selbar {
+  /* left 由 JS 按 .content（页面内容区）实测定（用户 2026-10-16：不对整个应用居中） */
+  position: fixed; bottom: 26px;
+  transform: translateX(-50%);
+  z-index: 260;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: var(--CARD);
+  border: 1px solid var(--LINE);
+  border-radius: 12px;
+  box-shadow: 0 14px 36px rgba(8, 10, 16, .24);
+}
+.rp-selinfo { font-size: 12.5px; color: var(--INK2); margin-right: 4px; }
+
+/* ---------- 备注弹窗（≤15 中文字或 ≤20 英文字） ---------- */
+.rp-rm-modal { width: min(420px, 84vw); }
+.rp-rm-body { padding: 14px 18px 6px; }
+.rp-rm-input {
+  width: 100%; box-sizing: border-box;
+  height: 31px; padding: 0 10px;
+  border: 1px solid var(--LINE); border-radius: 8px;
+  background: var(--CARD_ALT); color: var(--INK);
+  font-size: 12.5px; outline: none;
+}
+.rp-rm-input:focus { border-color: var(--ACCENT_LINE); }
+.rp-rm-hint { min-height: 18px; margin-top: 6px; font-size: 11.5px; color: var(--INK3); }
+.rp-rm-hint.err { color: var(--ERR); }
+.rp-rm-foot {
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 6px 18px 14px;
+}
+
+/* ---------- 详细信息弹窗 ---------- */
+.rp-det-modal { width: min(560px, 86vw); max-height: 72vh; }
+.rp-det-body {
+  flex: 1; min-height: 0; overflow: auto;
+  padding: 12px 18px 16px;
+  scrollbar-width: none;
+}
+.rp-det-body::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.rp-det-row { display: flex; gap: 12px; padding: 5px 0; }
+.rp-det-k { flex: none; width: 72px; color: var(--INK3); font-size: 12px; }
+.rp-det-v {
+  flex: 1 1 auto; min-width: 0;
+  color: var(--INK); font-size: 12.5px;
+  white-space: pre-wrap; word-break: break-all;
+}
+/* 详细信息可编辑行（用户 2026-10-16）：名称/训练方式/备注/主题/置顶 */
+.rp-det-input {
+  width: min(340px, 100%);
+  padding: 6px 10px;
+  font: inherit; font-size: 12.5px;
+  color: var(--INK);
+  background: var(--CARD_ALT);
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  outline: none;
+}
+.rp-det-input:focus { border-color: var(--ACCENT_LINE); }
+.rp-det-path { display: flex; align-items: center; gap: 8px; word-break: break-all; }
+.rp-det-btn {
+  flex: none;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--INK);
+  background: var(--BTN2_BG);
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.rp-det-btn:hover { background: var(--SIDE_HOVER); }
+/* 训练方式下拉与名称等输入框同款，宽按最长选项（继续预训练 62.5px）收（用户 2026-10-16）：
+   62.5 + 左右内距 20 + 箭头 13 + 间隙 6 + 稍留空 4 ≈ 106px */
+.rp-det-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  width: 106px;
+  padding: 6px 10px;
+  font: inherit; font-size: 12.5px;
+  color: var(--INK);
+  background: var(--CARD_ALT);
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.rp-det-pick:hover { border-color: var(--INK3); }
+.rp-det-pick .pick-label {
+  flex: 1 1 auto; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.rp-det-pick .pick-caret { flex: none; margin-right: -2px; }
+/* 名称行：输入框 + 右侧「重复」/绿点（用户 2026-10-16，同训练页 wn 布局） */
+.rp-det-name { display: flex; align-items: center; gap: 8px; }
+.rp-det-name .rp-det-input { flex: none; }
+
+/* ---------- 卡片进场（用户 2026-10-17：与数据集页同款） ----------
+   淡入 + 轻微上移，逐张错开 20ms（最多 8 张），只在每个视图首次露出来时播一次；
+   搜索/筛选重渲染不重播（render 里用 .enter 开关）。 */
+@keyframes rpCardIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.rp-grid.enter > .rp-card {
+  animation: rpCardIn 260ms cubic-bezier(.34, 1, .5, 1) both;
+  animation-delay: calc(var(--rp-i, 0) * 20ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .rp-grid.enter > .rp-card { animation: none; }
+}
+
+/* ---------- 文件夹（用户 2026-10-20：权重/数据集的文件夹系统） ---------- */
+/* 文件夹卡（用户 2026-10-20 第二轮）：不再画内框/标签，等同于普通卡片 + 标题行下一条通栏分割线。
+   · 卡片外框、圆角、hover/选中高亮沿用 .card 的（圆角 14，高亮因此完全贴合）；
+   · 标题行高度/位置与文件卡的 .rp-head 一致（左缘 14px、同一基线）；
+   · 分割线是 ::after 绝对定位，左右各出到卡片内边 14px → 右端贴住卡片右边框，
+     并且不占垂直空间，标签行与四条信息行跟文件卡逐行对齐。 */
+/* 标题行（用户 2026-10-20 第三轮）：图标 + 名称 + 锁在「卡片上边框 ~ 分割线」这一条里上下居中；
+   分割线由标题行自身的 border-bottom 画（左右各外扩 14px = 通栏），比原来贴字那种画法上移一点。 */
+.rp-folder { padding-top: 0; padding-bottom: 9px; }   /* 高度与文件卡一致（178） */
+.rp-folder .rp-fhead {
+  position: relative;
+  display: flex; align-items: center; gap: 8px;
+  min-width: 0;
+  height: 28px;              /* 标题带压薄：分割线跟着上移（用户 2026-10-20：继续上移） */
+  margin: 0 -14px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--LINE);
+}
+/* 标签行紧随分割线：仍然与文件卡的标签行同一 y（卡内 40px） */
+.rp-folder .rp-tags { margin-top: 11px; }   /* 标签行仍钉在卡内 40px，分割线上移后下方留白变大 */
+.rp-fhead .rp-title { flex: 1 1 auto; min-width: 0; }
+.rp-folder .rp-fico {
+  display: inline-flex; align-items: center;
+  color: var(--ACCENT);
+}
+.rp-tag.rp-tag-folder {
+  color: var(--ACCENT);
+  border-color: var(--ACCENT_LINE);
+  background: var(--ACCENT_SOFT);
+}
+.rp-tag.rp-tag-count {
+  color: var(--INK3);
+  border-color: var(--LINE);
+  background: var(--CARD_ALT);
+}
+/* 进文件夹后的面包屑（用户 2026-10-20）：并进筛选栏，文件夹名 | ‹ 返回 | 搜索栏… */
+.rp-crumb {
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-right: auto;          /* 文件夹名钉行首（用户 2026-10-20）：筛选组仍在行尾 */
+}
+.rp-crumb[hidden] { display: none; }
+.rp-crumb-back {
+  height: 31px; box-sizing: border-box; padding: 5px 12px;
+  border: 1px solid var(--LINE); border-radius: 8px;
+  background: var(--CARD_ALT); color: var(--INK2);
+  font-family: inherit; font-size: 10pt; cursor: pointer;
+}
+.rp-crumb-back[hidden] { display: none; }   /* 只在文件夹里显示（用户 2026-10-20） */
+.rp-crumb-back:hover { border-color: var(--ACCENT_LINE); color: var(--ACCENT_TEXT); }
+.rp-crumb-now { font-size: 11pt; font-weight: 700; color: var(--INK2); white-space: nowrap; }   /* 与筛选栏文字同色（用户 2026-10-20） */
+
+/* 日期框 + 自绘日历弹层（用户 2026-10-22）
+   为什么要自绘：Chromium 原生 date 弹层的文案跟浏览器 UI 语言走（英文界面里仍是「2026年10月 /
+   清除 / 今天」）、选中日那圈黄框是系统焦点环、翻月箭头也偏大 —— 这三样 CSS 都改不动。 */
+.rp-datewrap { position: relative; display: inline-flex; align-items: center; }
+.rp-datewrap .rp-date { width: 132px; }
+.rp-date-btn {
+  position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+  width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;
+  border: 0; background: transparent; color: var(--INK2); opacity: .55;
+  cursor: pointer; padding: 0; border-radius: 6px;
+}
+.rp-date-btn:hover { opacity: .8; }
+.rp-date-btn:focus, .rp-date-btn:focus-visible { outline: none; }
+
+.rp-cal {
+  position: absolute; z-index: 60; top: calc(100% + 6px); left: 0;
+  width: 236px; padding: 10px 10px 8px;
+  background: var(--CARD); border: 1px solid var(--LINE); border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(20, 28, 60, .16);
+  color: var(--INK);
+}
+.rp-cal-head { display: flex; align-items: center; gap: 2px; margin-bottom: 6px; }
+.rp-cal-title { flex: 1 1 auto; font-size: 11.5px; font-weight: 700; color: var(--INK2); }
+.rp-cal-nav {
+  width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center;
+  border: 0; background: transparent; color: var(--INK2); border-radius: 6px; cursor: pointer; padding: 0;
+}
+.rp-cal-nav:hover { background: var(--CARD_ALT); }
+.rp-cal-nav:focus, .rp-cal-nav:focus-visible { outline: none; }
+.rp-cal-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 2px; }
+.rp-cal-week span { text-align: center; font-size: 10px; color: var(--INK3); height: 18px; line-height: 18px; }
+.rp-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.rp-cal-day {
+  height: 26px; border: 0; background: transparent; border-radius: 6px;
+  font-family: inherit; font-size: 11px; color: var(--INK2); cursor: pointer; padding: 0;
+}
+.rp-cal-day:hover { background: var(--CARD_ALT); }
+.rp-cal-day:focus, .rp-cal-day:focus-visible { outline: none; }
+.rp-cal-day.out { color: var(--INK3); opacity: .5; }
+.rp-cal-day.today { box-shadow: inset 0 0 0 1px var(--ACCENT_LINE); }
+.rp-cal-day.sel { background: var(--ACCENT); color: #fff; }   /* 选中日实心蓝，没有黄框 */
+.rp-cal-foot { display: flex; justify-content: space-between; margin-top: 8px; }
+.rp-cal-act {
+  border: 0; background: transparent; color: var(--ACCENT_TEXT);
+  font-family: inherit; font-size: 11px; padding: 4px 6px; border-radius: 6px; cursor: pointer;
+}
+.rp-cal-act:hover { background: var(--CARD_ALT); }
+.rp-cal-act:focus { outline: none; }

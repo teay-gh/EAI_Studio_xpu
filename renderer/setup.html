@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark" data-lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>EAI Studio</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="setup.css">
+<script>
+/* 主题 / 语言预置：跟 index.html 同一套口径，避免首帧闪一下。
+   语言优先读 localStorage（和主界面共用 eaiLang），没有就中文。 */
+(function () {
+  try {
+    var t = new URLSearchParams(location.search).get('theme');
+    if (t !== 'light' && t !== 'dark') t = 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+    var l = localStorage.getItem('eaiLang');
+    document.documentElement.setAttribute('data-lang', l === 'en' ? 'en' : 'zh');
+    document.documentElement.setAttribute('lang', l === 'en' ? 'en-US' : 'zh-CN');
+  } catch (e) { /* 隐私模式等 */ }
+})();
+window.__ERRS = [];
+window.addEventListener('error', function (e) {
+  window.__ERRS.push(String(e.message || e.error || '') + ' @' + (e.filename || '').split('/').pop() + ':' + (e.lineno || ''));
+}, true);
+</script>
+</head>
+<body class="su-body">
+
+<!-- ============ 标题栏（与主界面同款 40px） ============ -->
+<header class="titlebar" id="titlebar">
+  <div class="tb-brand">
+    <img class="tb-logo" src="../assets/eai.png" alt="" aria-hidden="true">
+    <span class="tb-name">EAI Studio</span>
+  </div>
+
+  <div class="tb-win">
+    <button class="win-btn" id="winMin" type="button" title="最小化" aria-label="最小化">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12h13"/></svg>
+    </button>
+    <button class="win-btn" id="winMax" type="button" title="最大化 / 还原" aria-label="最大化 / 还原">
+      <svg class="ic ic-max" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="13" height="13" rx="1.6"/></svg>
+      <svg class="ic ic-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="4" y="8.6" width="11.4" height="11.4" rx="1.6"/>
+        <path d="M8.2 8.6V6.2a1.6 1.6 0 0 1 1.6-1.6h8.1a1.6 1.6 0 0 1 1.6 1.6v8.1a1.6 1.6 0 0 1-1.6 1.6h-2.4"/>
+      </svg>
+    </button>
+    <button class="win-btn win-close" id="winClose" type="button" title="关闭" aria-label="关闭">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.6 6.6l10.8 10.8M17.4 6.6L6.6 17.4"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="su-main">
+  <section class="su-card" id="card">
+    <h1 class="su-title" id="suTitle">安装运行环境</h1>
+
+    <div class="su-list" id="suList">
+      <div class="su-loading" id="suLoading">正在检测环境 …</div>
+    </div>
+
+    <div class="su-foot">
+      <!-- 语言段选：与设置页「语言」卡片同款（.seg + 蓝色滑块） -->
+      <div class="seg su-lang" id="langSeg" role="radiogroup" aria-label="语言">
+        <button class="seg-opt on" type="button" role="radio" data-lang="zh" aria-checked="true">中文</button>
+        <button class="seg-opt" type="button" role="radio" data-lang="en" aria-checked="false">English</button>
+        <span class="seg-thumb"></span>
+      </div>
+      <button class="btn su-btn su-primary" id="suGo" type="button" disabled>开始安装</button>
+    </div>
+
+    <pre class="su-detail-body" id="suDetailBody" hidden></pre>
+  </section>
+</main>
+
+<script src="setup.js"></script>
+</body>
+</html>

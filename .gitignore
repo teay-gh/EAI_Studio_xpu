@@ -1,0 +1,45 @@
+# ============================================================================
+# EAI Studio（XPU 版）· 入库规则
+# 目标：clone 下来 3 MB、装一次依赖就能跑；绝不把密钥 / 运行数据 / 依赖带上去。
+# 单独把本目录拆成仓库时也认这份（.gitignore 跟着目录走）。
+# ============================================================================
+
+# ——— Electron 运行时（276 MB，npm install 装回来；启动.bat 缺了会自动装） ———
+node_modules/
+
+# ——— 运行时会话与日志 ———
+logs/
+state.json
+*.log
+crash.log
+
+# ——— Python 缓存 ———
+__pycache__/
+*.pyc
+
+# ——— 配置与密钥：绝不入库（本机 config.json 里有 10 处 API key） ———
+engine/config.json
+engine/config.json.bak*
+engine/config.pre_*.json
+engine/config_backups/
+engine/configs/runtime_*.json
+engine/torch_backend.json
+engine/logs/
+
+# ——— 运行时数据（采集产物、扫描缓存、勾选状态） ———
+engine/data/article/
+engine/data/response/
+engine/data/.scan_dirs.json
+engine/data/.corpus_sel.json
+
+# ——— 工程 / 用户数据 ———
+projects/
+
+# ——— 临时文件 ———
+*.tmp-*
+
+# 安装期临时目录（Electron zip / npm 缓存，装完自删）
+_install_cache/
+
+# 本地 agent 运行时
+.mimocode/

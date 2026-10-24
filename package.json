@@ -1,0 +1,16 @@
+{
+  "name": "eai-studio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "EAI Studio · Chromium 外壳（Electron 主进程 + Python 数据桥）。自带 Electron 33（devDependencies），启动不再依赖其它项目。",
+  "main": "main.js",
+  "author": "EEEPro",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "smoke": "electron . --smoke"
+  },
+  "devDependencies": {
+    "electron": "^33.4.11"
+  }
+}

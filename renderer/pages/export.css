@@ -1,0 +1,154 @@
+/* ============ 导出模型页 ============
+   两栏：左 = 模型文件清单，右 = 导出位置 + 导出日志（整页一屏，清单超长时内部滚动）。
+   复选框本体样式在 styles.css（与数据集页 .ds-pick / 蒸馏页 .rs-check 同一套自绘）。 */
+
+.ex-grid {
+  display: grid;
+  grid-template-columns: minmax(380px, 1.12fr) minmax(340px, 1fr);
+  gap: 18px;
+  align-items: stretch;        /* 两栏等高（用户 2026-10-20）：右栏日志框跟着左栏底部走 */
+}
+.ex-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; height: 100%; }
+/* 导出日志卡吃掉右栏剩余高度，底边与左侧「模型文件」卡持平 */
+.ex-col > .card:last-child { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
+.ex-col > .card:last-child .card-body { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
+
+/* ---------- 左：清单 ---------- */
+.ex-listhead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.ex-all { margin-right: auto; }
+.ex-check { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.ex-check-label { font-size: 10pt; color: var(--INK2); }
+
+/* 固定显示 6.5 行（用户 2026-10-20）：高度由 export.js 的 sizeList 量出行高后写死，
+   这里只给兜底；滚动条隐掉（还能滚），上下用渐隐提示还有内容 */
+.ex-list {
+  display: flex;
+  flex-direction: column;
+  height: 380px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+.ex-list::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.ex-listwrap { position: relative; }
+/* 顶/底滚动渐隐：参考仓库「查看内容」，约一行高、按距边距离显隐 */
+.ex-fade {
+  position: absolute; left: 0; right: 0;
+  height: 22px;
+  pointer-events: none;
+  opacity: 0;
+}
+.ex-fade-top { top: 0; background: linear-gradient(to bottom, var(--CARD) 20%, rgba(237, 239, 247, 0)); }
+.ex-fade-bot { bottom: 0; background: linear-gradient(to top, var(--CARD) 20%, rgba(237, 239, 247, 0)); }
+.ex-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 2px;
+  border-top: 1px solid var(--LINE);
+}
+.ex-item:first-child { border-top: 0; }
+.ex-info { flex: 1 1 auto; min-width: 0; }
+.ex-name {
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 10pt;
+  color: var(--INK);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ex-meta { margin-top: 2px; font-size: 9pt; color: var(--INK3); }
+.ex-missing .ex-name { color: var(--INK3); }
+
+/* ---------- 右：导出位置与操作 ---------- */
+.ex-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 10px;
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  background: var(--CARD_ALT);
+  color: var(--INK);
+  font-family: inherit;
+  font-size: 10pt;
+  line-height: 1.4;
+  /* 路径要能选中复制（用户 2026-10-21）：全局 user-select:none 会把输入框一起禁掉 */
+  -webkit-user-select: text;
+  user-select: text;
+  cursor: text;
+}
+.ex-mono { font-family: "Cascadia Mono", "Consolas", monospace; }
+.ex-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+
+/* 筛选训练方式 + 搜索权重名称（用户 2026-10-21）：放在「重新扫描」左边 */
+/* 筛选训练方式下拉（用户 2026-10-21）：仓库同款自绘 pick —— 井圆角 8px 与仓库 .rp-bar .pick 一致，
+   弹层圆角/接缝侧拉平由全局 .pick-pop/.pick-open 提供 */
+.ex-pick {
+  flex: none;
+  width: 130px;
+  height: 31px;
+  box-sizing: border-box;
+  padding: 5px 9px;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-family: inherit;
+  font-size: 10pt;
+}
+.ex-search {
+  flex: none;
+  width: 150px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+}
+
+.ex-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 10pt;
+  font-family: inherit;
+  cursor: default;
+}
+.ex-btn:disabled { opacity: .45; }
+.ex-accent { background: var(--ACCENT); color: var(--INK_INV); }
+.ex-accent:hover:enabled { background: var(--ACCENT_HOVER); }
+.ex-soft { background: var(--ACCENT_SOFT); color: var(--ACCENT_TEXT); }
+.ex-soft:hover:enabled { color: var(--ACCENT); }
+.ex-ghost { background: var(--CARD_ALT); color: var(--INK2); border-color: var(--LINE); }
+.ex-ghost:hover:enabled { color: var(--INK); border-color: var(--INK3); }
+
+/* ---------- 日志 ---------- */
+/* 日志框高度不再写死：跟着左栏「模型文件」卡的高度走（用户 2026-10-20，两边底边持平） */
+.ex-log {
+  flex: 1 1 auto;
+  min-height: 214px;
+  overflow: auto;
+  padding: 10px 12px;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  background: var(--LOG_BG);
+  color: var(--LOG_FG);
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 9pt;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: text;
+}
+.ex-log-line { display: block; }
+.ex-log-line.ok { color: var(--OK); }
+.ex-log-line.warn { color: var(--WARN); }
+.ex-log-line.err { color: var(--ERR); }
+
+/* LoRA 可选合并（用户 2026-10-16）：条目行尾「合并」勾选 */

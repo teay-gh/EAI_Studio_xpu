@@ -1,0 +1,408 @@
+/* ============================================================
+   EAI_Studio · pages/recycle.css ——「回收站」页样式（全局）
+   口径 2026-10-14：回收站入口在活动栏「设置」上方；站里收样本 / 数据集 / 模型权重
+   ============================================================ */
+
+/* ---------- 工具行（在卡片内，与数据管理同款布局） ---------- */
+/* 回收站不再套白卡（用户 2026-10-20：卡片 UI 参考仓库，卡片底下不要白框）：
+   工具行与卡片网格直接落在页面背景上 */
+.rc-box { display: block; }
+.rc-box-body { display: flex; flex-direction: column; gap: 12px; }
+
+.rc-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;   /* 整行靠右（用户 2026-10-20）：刷新/恢复/彻底删除/清空 一组排右端 */
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.rc-toolbar .rc-right { margin-left: 0; }
+
+.rc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 33px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--LINE);
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-size: 13px;
+  cursor: pointer;
+}
+.rc-btn:hover { border-color: var(--ACCENT); color: var(--INK); }
+
+.rc-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 33px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--ERR);
+  background: var(--ERR_SOFT);
+  color: var(--ERR);
+  font-size: 13px;
+  cursor: pointer;
+}
+.rc-btn-danger:hover { filter: brightness(1.08); }
+
+.rc-kind {
+  height: 31px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--LINE);
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-size: 13px;
+}
+
+.rc-status { margin: 8px 0 0; font-size: 12px; color: var(--MUTED, var(--INK3)); min-height: 16px; }
+.rc-status.err { color: var(--ERR); }
+
+/* 彻底删除的二次确认（用户 2026-10-20）：应用内自绘，外壳同 api.prompt 的 .ask-box */
+.rc-ask-box { max-width: min(420px, 84vw); }
+.ask-msg { font-size: 13px; color: var(--INK); line-height: 1.65; }
+.ask-sub { margin-top: 6px; font-size: 12px; color: var(--INK3); }
+.rc-ask-danger {
+  border: 1px solid var(--ERR);
+  background: var(--ERR_SOFT);
+  color: var(--ERR);
+}
+.rc-ask-danger:hover { filter: brightness(1.06); }
+.rc-ask-danger:active { transform: translateY(1px); }
+/* 默认焦点在「彻底删除」上，用红色描边（别用全局琥珀色 focus 圈） */
+.rc-ask-box .ask-btn:focus { outline: none; }
+.rc-ask-box .ask-btn:focus-visible { outline: 2px solid var(--ACCENT); outline-offset: 2px; }
+.rc-ask-box .rc-ask-danger:focus-visible { outline-color: var(--ERR); }
+
+/* 权重卡的 Loss 曲线（用户 2026-10-20）：很小的折线，只看形状 */
+.rc-loss {
+  margin-top: 4px;
+  height: 42px;
+  min-height: 42px;
+  border-radius: 8px;
+  background: rgba(244, 246, 252, .8);
+  padding: 4px 6px 2px;
+  overflow: hidden;
+}
+.rc-loss-svg { width: 100%; height: 30px; }
+.rc-loss-svg svg { display: block; }
+.rc-loss-empty {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--INK3);
+}
+.rc-loss-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--INK3);
+  line-height: 1;
+  margin-top: -2px;
+}
+.rc-loss-k { white-space: nowrap; }
+.rc-loss-train { color: rgb(61, 144, 119); }
+.rc-loss-val { color: rgb(79, 107, 216); }
+.rc-loss-last { margin-left: auto; color: var(--INK3); }
+
+/* 文件夹卡（用户 2026-10-20 第四轮）：照抄仓库——普通卡片 + 标题行下一条通栏分割线 */
+/* 用双类名压过后面的 .rc-card（同权重、后者在后会盖掉 padding） */
+.rc-card.rc-folder { padding-top: 0; padding-bottom: 9px; }
+.rc-folder .rc-card-head {
+  position: relative;
+  height: 28px;
+  margin: 0 -14px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--LINE);
+}
+.rc-folder .rc-tags { margin-top: 11px; }
+.rc-fico { display: inline-flex; color: var(--ACCENT); }
+.rc-tag-count { color: var(--INK3); }
+
+/* ---------- 表格 ---------- */
+.rc-tablewrap {
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.rc-tr {
+  display: grid;
+  grid-template-columns: 36px 96px minmax(160px, 1.2fr) minmax(160px, 1fr) 150px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--LINE);
+  font-size: 13px;
+  color: var(--INK2);
+}
+.rc-tr:last-child { border-bottom: none; }
+.rc-tr:not(.rc-thead):hover { background: var(--LINE); }   /* 悬停色与表头 CARD_ALT 区分开（用户 2026-10-21：原来 SIDE_HOVER 与表头几乎同色） */
+.rc-tr.on { background: var(--LINE); }
+
+.rc-thead {
+  background: var(--CARD_ALT);
+  color: var(--INK3);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ---- 勾选框：与数据集页一致（.ds-pick 自绘，原生 checkbox 白框不合背景） ---- */
+.ds-ic {
+  display: inline-flex;
+  flex: none;
+  width: 15px;
+  height: 15px;
+  color: inherit;
+}
+.ds-ic svg { width: 100%; height: 100%; display: block; }
+
+.rc-tr > .ds-pick { justify-self: center; }
+.ds-pick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--ACCENT_LINE);
+  border-radius: 4px;
+  background: var(--CARD_ALT);
+  cursor: pointer;
+}
+.ds-pick .ds-ic {
+  width: 12px;
+  height: 12px;
+  opacity: 0;
+  transform: translateY(-1px);
+  color: #fff;
+}
+.ds-pick.on {
+  background: var(--ACCENT);
+  border-color: var(--ACCENT);
+}
+.ds-pick.on .ds-ic { opacity: 1; }
+.ds-pick:active { transform: scale(0.92); }
+
+.rc-th { white-space: nowrap; }
+
+.rc-kind-tag {
+  white-space: nowrap;
+  color: var(--INK3);
+}
+
+.rc-name,
+.rc-src {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rc-name { color: var(--INK); }
+.rc-src { color: var(--INK3); font-size: 12px; }
+.rc-time { white-space: nowrap; color: var(--INK3); font-size: 12px; }
+
+.rc-empty {
+  padding: 26px 12px;
+  text-align: center;
+  color: var(--INK3);
+  font-size: 13px;
+  /* 空态横跨整排栅格（用户 2026-10-20）：.rc-cards 是 auto-fill 网格，
+     不跨列的话会在第一格（300px 宽）里居中，看着还是靠左 */
+  grid-column: 1 / -1;
+}
+
+/* ---------- 数据集页横条（数据集 / 单条数据） + 数据集卡片排布 ---------- */
+.rc-segwrap { margin: 0 0 12px; }
+.rc-seg { width: max-content; }
+
+.rc-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+}
+.rc-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 178px;
+  padding: 12px 14px 10px;
+}
+.rc-card.on { border-color: var(--ACCENT); }
+/* 分类标签行（权重训练方式 / 文件夹+个数），与仓库同款 */
+.rc-tags { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; }
+.rc-tag {
+  height: 24px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  border: 1px solid var(--LINE);
+  border-radius: 7px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.rc-tag-folder {
+  color: var(--ACCENT);
+  border-color: var(--ACCENT_LINE);
+  background: var(--ACCENT_SOFT);
+}
+.rc-tag-pretrain { color: rgb(54, 106, 168); border-color: rgba(54, 106, 168, .38); background: rgba(54, 106, 168, .08); }
+.rc-tag-continue { color: rgb(61, 144, 119); border-color: rgba(61, 144, 119, .40); background: rgba(61, 144, 119, .08); }
+.rc-tag-sft { color: rgb(168, 88, 96); border-color: rgba(168, 88, 96, .38); background: rgba(168, 88, 96, .08); }
+.rc-tag-lora { color: rgb(126, 92, 176); border-color: rgba(126, 92, 176, .38); background: rgba(126, 92, 176, .08); }
+.rc-tag-merge { color: rgb(148, 116, 58); border-color: rgba(148, 116, 58, .44); background: rgba(148, 116, 58, .08); }
+.rc-tag-prune { color: rgb(148, 116, 58); border-color: rgba(148, 116, 58, .38); background: rgba(148, 116, 58, .08); }
+.rc-tag-quant { color: rgb(96, 104, 128); border-color: rgba(96, 104, 128, .34); background: rgba(96, 104, 128, .08); }
+/* 三条信息（大小 / 删除时间 / 来源）：标签下方的剩余高度用 space-evenly 平分，
+   于是「标签下沿 → 大小」、三条之间、「来源 → 卡片下沿」四处间距全部相等（用户 2026-10-20） */
+.rc-rows {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  padding: 0;
+}
+.rc-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.rc-card-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--INK);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rc-kv {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  font-size: 12px;
+}
+.rc-kv .k { color: var(--INK3); flex: none; }
+.rc-kv .v {
+  color: var(--INK2);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- 右键菜单 + 查看内容弹窗（用户 2026-10-16） ---------- */
+.rc-menu {
+  position: fixed; z-index: 260;
+  min-width: 132px;
+  padding: 4px;
+  background: var(--CARD);
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(8, 10, 16, .22);
+}
+.rc-menu-item {
+  display: block; width: 100%;
+  border: 0; background: none;
+  text-align: left;
+  padding: 6px 10px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  color: var(--INK);
+  cursor: pointer;
+}
+.rc-menu-item:hover { background: var(--LINE); }
+.rc-menu-item.danger { color: var(--ERR); }
+.rc-menu-sep { height: 1px; margin: 4px 6px; background: var(--LINE); }
+
+.rc-modal {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(8, 10, 16, .32);
+  display: flex; align-items: center; justify-content: center;
+}
+.rc-modal-box {
+  width: min(760px, 90vw);
+  max-height: 82vh;
+  display: flex; flex-direction: column;
+  background: var(--CARD);
+  border: 1px solid var(--LINE);
+  border-radius: 12px;
+  box-shadow: 0 24px 64px rgba(8, 10, 16, .3);
+  padding: 14px 16px;
+}
+.rc-modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--LINE);
+}
+.rc-modal-title {
+  flex: 1 1 auto; min-width: 0;
+  font-size: 13px; font-weight: 600; color: var(--INK);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* 全文预览（查看内容弹窗 / 单条数据点行预览共用） */
+.rc-pre {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  background: var(--CARD_ALT);
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--INK2);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: auto;
+}
+.rc-modal-box .rc-pre { flex: 1; min-height: 0; }
+
+/* ---------- 回收站文件夹（用户 2026-10-20） ---------- */
+
+
+/* 文件夹内：文件夹名钉在最左（与卡片左边框对齐）、返回钉在「刷新」左边（用户 2026-10-20） */
+.rc-tb-lead {
+  margin-right: auto;
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--INK2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rc-toolbar { align-items: center; }
+.rc-tb-back { margin-left: 0; }
+
+/* 只读「详细信息」弹窗（用户 2026-10-20：能看不能改） */
+.rc-det { width: min(680px, 88vw); }
+.rc-det-body { padding: 4px 2px 2px; }
+.rc-det-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 5px 0;
+  font-size: 12.5px;
+}
+.rc-det-k { flex: none; width: 68px; color: var(--INK3); }
+.rc-det-v { color: var(--INK); min-width: 0; word-break: break-all; }
+.rc-det-loss { flex: 1 1 auto; }
+/* 与仓库 .rp-loss-chart 同款：浅底 + 1px 边框 + 8px 圆角 + 168 高（用户 2026-10-20） */
+.rc-loss-chart {
+  width: 100%; height: 168px; box-sizing: border-box;
+  background: var(--LOG_BG); border: 1px solid var(--LINE); border-radius: 8px;
+  overflow: hidden;
+}
+.rc-loss-chart svg { width: 100%; height: 100%; display: block; }
+.rc-loss-empty { padding: 14px; font-size: 9pt; color: var(--INK3); }

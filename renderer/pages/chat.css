@@ -1,0 +1,434 @@
+/* 对话验证页（plug: chat）样式补充。
+   颜色一律取 styles.css 的 CSS 变量；字号一律 pt；图标只用内联 SVG；
+   只补本页需要的类（registry 里点名的 .msg/.bubble/.kv/.mono 等 styles.css 尚未定义）。 */
+
+/* ---------- 主体两栏：左对话、右参数 ---------- */
+.chat-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 20px;
+  align-items: stretch;      /* 左卡撑到底（用户 2026-10-17：不要下方留空） */
+  flex: 1 1 auto;
+  min-height: 0;
+}
+/* styles.css 有 `#plugRoot > * { flex: 0 0 auto }`，用 ID 提权才吃得住（否则左卡撑不到底） */
+#plugRoot > .chat-main { flex: 1 1 auto; min-height: 0; }
+/* 左栏只有对话卡：卡片吃满、内部滚（配 .chat-card-fill） */
+.chat-col-main { min-height: 0; }
+.chat-card-fill { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.chat-card-fill > .card-body { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.chat-card-fill .chat-log { flex: 1 1 auto; max-height: none; }
+
+/* 卡头右侧：⏱ 历史 / ＋ 新对话 两颗图标（用户 2026-10-18：与 AI 助手面板同一套图标与尺寸）
+   尺寸/边框/悬停照 .ai-hbtn.ai-hist / .ai-new：22×22、1px LINE、悬停 SIDE_HOVER + 主色描边 */
+.chat-hist-slot {
+  margin-left: auto;
+  align-self: center;
+  position: relative;            /* 浮层挂在这上面 */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.chat-card-fill > .card-head { align-items: center; flex-wrap: nowrap; }
+
+.chat-hbtn {
+  width: 22px; height: 22px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--LINE);
+  border-radius: 6px;
+  background: none;
+  color: var(--INK2);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+.chat-hbtn:hover, .chat-hbtn.on {
+  background: var(--SIDE_HOVER);
+  color: var(--INK);
+  border-color: var(--ACCENT);
+}
+.chat-hbtn:active { transform: scale(.94); }
+.chat-hbtn .ic { width: 15px; height: 15px; }
+.chat-hbtn-new .ic { width: 13px; height: 13px; stroke-width: 2; }
+
+/* 历史浮层：贴着卡头右上角往下展开，样式照 AI 助手的历史浮层 */
+.chat-hist-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 320px;
+  max-width: 360px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 4px;
+  box-sizing: border-box;
+  background: var(--CARD);
+  border: 1px solid var(--SIDE_DIVIDER, var(--LINE));
+  border-radius: 9px;
+  box-shadow: 0 12px 26px rgba(15, 20, 40, .18);
+  display: none;
+  z-index: 40;
+}
+.chat-hist-pop.on { display: block; }
+.chat-hist-empty {
+  padding: 12px 10px;
+  font-size: 9pt;
+  color: var(--INK3);
+}
+.chat-hist-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 9px;
+  border-radius: 7px;
+  cursor: pointer;
+  position: relative;
+}
+/* 行尾删除键（用户 2026-10-20：每条历史记录可删，照 AI 窗口那条） */
+.chat-hist-del {
+  flex: none; width: 20px; height: 20px; padding: 0; border: 0; border-radius: 5px;
+  appearance: none; -webkit-appearance: none; background: none; color: var(--INK3);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  opacity: 0; transition: opacity 120ms ease, background-color 120ms ease, color 120ms ease;
+}
+.chat-hist-del svg { width: 12px; height: 12px; }
+.chat-hist-row:hover .chat-hist-del { opacity: 1; }
+.chat-hist-del:hover { background: var(--SIDE_HOVER); color: var(--ERR); }
+.chat-hist-row:hover { background: var(--SIDE_HOVER); }
+.chat-hist-row.on { background: var(--SIDE_HOVER); }
+.chat-hist-main { min-width: 0; flex: 1 1 auto; }
+.chat-hist-title {
+  font-size: 9.5pt;
+  color: var(--INK);
+  overflow: hidden; text-overflow: clip; white-space: nowrap;
+}
+.chat-hist-meta {
+  font-size: 8.5pt;
+  color: var(--INK3);
+  margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* 资源占用瓷片：360px 栏里两列紧凑版（用户 2026-10-17） */
+.chat-stats { gap: 12px; }
+.chat-stats .stat { padding: 14px; border-radius: 12px; display: flex; flex-direction: column; }
+.chat-stats .stat-hint { margin-top: auto; }   /* 四块提示单行、瓷片等高（用户 2026-10-17） */
+.chat-stats .stat-label { font-size: 8.5pt; }
+.chat-stats .stat-val { margin-top: 6px; font-size: 15pt; }
+.chat-stats .stat-hint { font-size: 8pt; }
+@media (max-width: 1080px) {
+  .chat-main { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- 工具条 ---------- */
+.chat-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.chat-toolbar .chat-spacer { margin-left: auto; }
+.chat-status { font-size: 9pt; color: var(--INK3); }
+
+/* 卡头：「● 对话验证」，小球用颜色表示运行状态（用户 2026-10-18） */
+.chat-titlewrap { display: flex; align-items: center; gap: 8px; min-width: 0; }
+
+/* 卡头里的会话名（用户 2026-10-18）：跟在「对话验证」后面，最多 12 字，超出省略号 */
+.chat-conv {
+  max-width: 14em;
+  font-size: 10pt;
+  font-weight: normal;
+  color: var(--INK3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chat-conv:empty { display: none; }
+.chat-dot {
+  width: 8px; height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--INK3);
+  opacity: .5;
+  transition: background-color 160ms ease, opacity 160ms ease, box-shadow 160ms ease;
+}
+.chat-dot.warn { background: var(--WARN); opacity: 1; }
+.chat-dot.ok { background: var(--OK); opacity: 1; }
+.chat-dot.busy {
+  background: var(--OK);
+  opacity: 1;
+  box-shadow: 0 0 0 3px rgba(61, 144, 119, .18);
+  animation: chatDotPulse 1.1s ease-in-out infinite;
+}
+@keyframes chatDotPulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+
+/* 开始按钮：与训练页同一颗主色实心按钮 */
+.chat-btn.primary { background: var(--ACCENT); color: var(--INK_INV); }
+.chat-btn.primary:hover { filter: brightness(1.06); }
+.chat-btn.primary:disabled { background: var(--BTN2_BG); color: var(--INK3); filter: none; }
+.chat-status.ok { color: var(--OK); }
+.chat-status.warn { color: var(--WARN); }
+
+/* styles.css 只提供 .btn / .btn-accent，补本页的次级按钮变体 */
+.chat-btn {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 10pt;
+  cursor: default;
+}
+.chat-btn.soft { background: var(--BTN2_BG); color: var(--BTN2_FG); }
+.chat-btn.soft:hover { background: var(--BTN2_ACTIVE); }
+.chat-btn.ghost { background: transparent; color: var(--INK2); border-color: var(--LINE); }
+.chat-btn.ghost:hover { background: var(--CARD_ALT); color: var(--INK); }
+.chat-btn.danger { background: var(--ERR_SOFT); color: var(--ERR); }
+.chat-btn.danger:hover { background: var(--ERR); color: var(--INK_INV); }
+
+/* 不可点的按钮必须看得出来（用户 2026-10-20：「对话已经停止时，停止按钮不可点击」）。
+   原来只有 .primary 有 :disabled 规则，.danger（停止）没有 —— 灰不了、悬停还会变红，
+   看着像能点，点下去没反应。这里统一：变淡、指针不变手、连悬停都不响应。 */
+.chat-btn:disabled {
+  opacity: .55;
+  cursor: default;
+  pointer-events: none;      /* 悬停也不再高亮，彻底点不动 */
+}
+.chat-btn.danger:disabled { background: var(--BTN2_BG); color: var(--INK3); }
+.chat-btn.soft:disabled { background: var(--BTN2_BG); color: var(--INK3); }
+.chat-btn.ghost:disabled { border-color: var(--LINE); color: var(--INK3); }
+
+/* ---------- 对话记录（气泡可换行、内区滚动） ---------- */
+.chat-log {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 180px;
+  max-height: 46vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 2px;
+}
+/* 用户 2026-10-23：对话窗口里的文字要能用鼠标选中复制（body 默认 user-select:none） */
+.chat-log, .chat-log * {
+  -webkit-user-select: text;
+  user-select: text;
+  cursor: auto;
+}
+.chat-log::-webkit-scrollbar { width: 10px; }
+.chat-log::-webkit-scrollbar-thumb {
+  background: var(--LINE);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 6px;
+}
+
+.msg { display: flex; min-width: 0; }
+.msg.user { justify-content: flex-end; }
+.msg.bot { justify-content: flex-start; }
+.msg.sys { justify-content: center; }
+
+.bubble {
+  max-width: 78%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 10pt;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+.msg.user .bubble {
+  background: var(--USER_BG);
+  color: var(--INK_INV);
+  border-bottom-right-radius: 4px;
+}
+.msg.bot .bubble {
+  background: var(--BOT_BG);
+  color: var(--INK);
+  border-bottom-left-radius: 4px;
+}
+.sys-line {
+  font-size: 9pt;
+  color: var(--INK3);
+  text-align: center;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---------- 参数区（键值行） ---------- */
+.kv { display: flex; flex-direction: column; }
+.kv-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--LINE_SOFT);
+}
+.kv-row:last-child { border-bottom: 0; }
+.kv-key { flex: none; font-size: 9pt; color: var(--INK3); }
+.kv-val {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 10pt;
+  color: var(--INK);
+  text-align: right;
+  word-break: break-all;
+}
+.mono {
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 9pt;
+  color: var(--INK2);
+  word-break: break-all;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 9pt;
+  padding: 1px 8px;
+  border-radius: 999px;
+}
+.badge.ok { color: var(--OK); background: var(--OK_SOFT); }
+.badge.warn { color: var(--WARN); background: var(--WARN_SOFT); }
+.badge.err { color: var(--ERR); background: var(--ERR_SOFT); }
+
+/* ---------- 输入区 ---------- */
+.chat-input-row { display: flex; gap: 8px; margin-top: 14px; }
+.chat-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  background: var(--CARD);
+  color: var(--INK);
+  font-family: "Microsoft YaHei UI", "Segoe UI", sans-serif;
+  font-size: 11pt;
+  padding: 10px 12px;
+  outline: none;
+}
+.chat-input:focus { border-color: var(--ACCENT); }
+.chat-input::placeholder { color: var(--INK3); }
+.chat-send {
+  flex: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 10pt;
+  cursor: default;
+  background: var(--ACCENT);
+  color: var(--INK_INV);
+}
+.chat-send:hover { background: var(--ACCENT_HOVER); }
+
+/* ---------- 两栏内容（左对话 / 右资源+参数） ---------- */
+.chat-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+/* ---------- 历史会话列表 ---------- */
+.chat-generating .chat-log { border-radius: 10px; }
+
+/* ---------- 生成参数卡里的可改行（用户 2026-10-18：上下文长度允许覆盖） ---------- */
+.kv-ctl { display: inline-flex; align-items: center; gap: 8px; }
+.kv-select {
+  font-family: inherit; font-size: 9pt; color: var(--INK2);
+  background: var(--CARD_ALT); border: 1px solid var(--LINE);
+  border-radius: 7px; padding: 2px 6px; cursor: default;
+}
+.kv-select:focus { outline: none; border-color: var(--ACCENT_LINE); }
+.kv-hint { font-size: 8.5pt; color: var(--INK3); }
+
+/* ---------- 生成参数卡：长度滑条框 + 权重框（用户 2026-10-18） ---------- */
+.kv-box {
+  display: flex; flex-direction: column; gap: 8px;
+  margin: 7px 0;
+  padding: 9px 12px;
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  background: var(--CARD_ALT);
+}
+.kv-range-row { display: flex; align-items: center; gap: 10px; }
+.kv-range-k { flex: none; width: 5.4em; font-size: 9pt; color: var(--INK3); }
+.kv-range-v {
+  flex: none; min-width: 4.4em; text-align: right; white-space: nowrap;   /* 「4096 字符」不许折行（用户 2026-10-19） */
+  font-size: 9.5pt; color: var(--INK); font-variant-numeric: tabular-nums;
+  /* 数值可就地输入（用户 2026-10-20）：默认外观不变，悬停给点提示；内边距用负外边距抵掉，
+     右边缘和数字位置都跟以前一模一样 */
+  cursor: text; padding: 1px 5px; margin-right: -5px; border-radius: 5px;
+  transition: background-color 120ms ease;
+}
+.kv-range-v:hover { background: var(--CARD_ALT); }
+.kv-range-v.off { cursor: default; }
+.kv-range-v.off:hover { background: none; }
+/* 就地输入框：和数字同字号、同右对齐，边框用主色标出正在编辑 */
+.kv-range-edit {
+  flex: none; width: 4.6em; padding: 1px 5px; margin-right: -5px;
+  text-align: right; font-family: inherit; font-size: 9.5pt; font-variant-numeric: tabular-nums;
+  color: var(--INK); background: var(--CARD); border: 1px solid var(--ACCENT);
+  border-radius: 5px; outline: none;
+}
+/* 未导入模型 / 运行中：两个横条灰掉不可拖（用户 2026-10-18） */
+.kv-range:disabled { opacity: .45; cursor: default; }
+.kv-range-v.off { color: var(--INK3); }
+.kv-range-row.off .kv-range-k { color: var(--INK3); }
+
+.kv-range {
+  -webkit-appearance: none; appearance: none;
+  flex: 1 1 auto; min-width: 0; height: 3px;
+  border-radius: 2px; background: var(--LINE); cursor: default;
+}
+.kv-range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 13px; height: 13px; border-radius: 50%;
+  background: var(--ACCENT);
+  border: 2px solid var(--CARD);
+  box-shadow: 0 0 0 1px var(--ACCENT_LINE);
+}
+.kv-range:active::-webkit-slider-thumb { transform: scale(1.08); }
+.kv-range:focus { outline: none; }
+.kv-note { min-height: 0; font-size: 8.5pt; color: var(--INK3); }
+.kv-note:empty { display: none; }
+
+/* 权重小框：预训练在上、LoRA 在下，只显示文件名 */
+.kv-wt {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  background: var(--CARD);
+}
+.kv-wt-k { flex: none; width: 5.4em; font-size: 9pt; color: var(--INK3); }
+.kv-wt-v {
+  flex: 1 1 auto; min-width: 0;
+  text-align: right;
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 9pt; color: var(--INK);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* 大框里的「推理设备」行（与权重小框同高、同左边距，用户 2026-10-18） */
+.kv-dev { display: flex; align-items: center; gap: 8px; padding: 7px 10px; }
+.kv-dev-v {
+  flex: 1 1 auto; min-width: 0; text-align: right;
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 9pt; color: var(--INK);
+}
+
+/* 独立大格（不是套在「生成参数」卡里；用户 2026-10-18）
+   与右列其它卡同圆角、同底色，格内行距 10px */
+/* 开始 / 停止（用户 2026-10-18）：排在右栏最后一张卡片下面，右对齐 */
+.chat-runrow {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 2px;
+}
+.chat-runrow .chat-btn { flex: none; }
+
+.kv-panel {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--LINE);
+  border-radius: 12px;
+  background: var(--CARD);
+}
+/* 面板里的滑条行、权重小框去掉自身外边距，交给 gap 控距 */
+.kv-panel .kv-box { margin: 0; border: 0; padding: 0; background: transparent; }
+
+/* 权重框里「未选择」用弱化色（用户 2026-10-18） */
+.kv-wt-v.idle { color: var(--INK3); font-family: inherit; }

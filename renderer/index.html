@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>EAI Studio</title>
+<link rel="stylesheet" href="styles.css">
+<script>
+/* 主题预置：在任何样式生效前落地 data-theme，避免首帧白/黑闪。
+   ?theme=light|dark 优先（供截图预览），否则默认 dark。 */
+(function () {
+  try {
+    var t = new URLSearchParams(location.search).get('theme');
+    if (t !== 'light' && t !== 'dark') t = 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+  } catch (e) { /* ignore */ }
+})();
+/* 启动语言（用户 2026-10-20）：本地记的是英文时先把 body 藏起来，
+   等 i18n 在绘制前把整页翻完再显示 —— 否则首帧会先看到中文、随后才变英文。 */
+(function () {
+  try {
+    if (localStorage.getItem('eaiLang') === 'en') {
+      document.documentElement.setAttribute('data-lang-pending', '1');
+      var st = document.createElement('style');
+      st.textContent = 'html[data-lang-pending] body{visibility:hidden}';
+      document.head.appendChild(st);
+      /* 兜底：万一 i18n 没跑起来，1.5s 后也要露出来 */
+      setTimeout(function () { document.documentElement.removeAttribute('data-lang-pending'); }, 1500);
+    }
+  } catch (e) { /* 隐私模式等 */ }
+})();
+/* 启动错误面包屑：抓任何脚本的未捕获异常/拒绝存 window.__ERRS（2026-10-14 诊断启动卡壳）。 */
+window.__ERRS = [];
+window.__STEPS = [];
+window.addEventListener('error', function (e) {
+  window.__ERRS.push(String(e.message || e.error || 'error') + ' @ ' + (e.filename || '').split('/').pop() + ':' + (e.lineno || ''));
+}, true);
+window.addEventListener('unhandledrejection', function (e) {
+  window.__ERRS.push('rejection: ' + String((e.reason && (e.reason.stack || e.reason.message)) || e.reason || ''));
+});
+</script>
+</head>
+<body>
+
+<!-- ============ 标题栏（40px，可拖动） ============ -->
+<header class="titlebar" id="titlebar">
+  <div class="tb-brand">
+    <img class="tb-logo" src="../assets/eai.png" alt="" aria-hidden="true">
+    <span class="tb-name">EAI Studio</span>
+  </div>
+
+  <div class="tb-win">
+  <button class="tb-ai" id="aiBtn" type="button" title="AI 助手" aria-label="AI 助手" aria-expanded="false">
+    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M11.4 4.6 12.9 9l4.4 1.5-4.4 1.5-1.5 4.4-1.5-4.4L5.5 10.5 9.9 9z"/>
+      <path d="M18.4 16.4l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6z"/>
+    </svg>
+  </button>
+
+    <button class="win-btn" id="winMin" type="button" title="最小化" aria-label="最小化">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5.5 12h13"/>
+      </svg>
+    </button>
+    <button class="win-btn" id="winMax" type="button" title="最大化 / 还原" aria-label="最大化 / 还原">
+      <svg class="ic ic-max" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="5.5" y="5.5" width="13" height="13" rx="1.6"/>
+      </svg>
+      <svg class="ic ic-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="4" y="8.6" width="11.4" height="11.4" rx="1.6"/>
+        <path d="M8.2 8.6V6.2a1.6 1.6 0 0 1 1.6-1.6h8.1a1.6 1.6 0 0 1 1.6 1.6v8.1a1.6 1.6 0 0 1-1.6 1.6h-2.4"/>
+      </svg>
+    </button>
+    <button class="win-btn win-close" id="winClose" type="button" title="关闭" aria-label="关闭">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M6.6 6.6l10.8 10.8M17.4 6.6L6.6 17.4"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<!-- AI 助手面板：挂在顶栏下方、不可拖动（fixed 定位，无 drag 区域，无遮罩不挡操作） -->
+<div class="ai-panel" id="aiPanel">
+  <div class="ai-head">
+    <span class="ai-dot" id="aiDot" title=""></span>
+    <span class="ai-title">AI 助手</span>
+    <button class="ai-hbtn ai-size" id="aiSize" type="button" title="切换窗口大小" aria-label="切换窗口大小">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4.5 9.5v-5h5"/><path d="M19.5 14.5v5h-5"/><path d="M4.5 4.5l6 6"/><path d="M19.5 19.5l-6-6"/>
+      </svg>
+    </button>
+    <button class="ai-hbtn ai-hist" id="aiHist" type="button" title="本工程的对话历史" aria-label="对话历史">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 7.6v4.8l3.1 1.9"/><circle cx="12" cy="12" r="7.6"/>
+      </svg>
+    </button>
+    <button class="ai-hbtn ai-new" id="aiNew" type="button" title="新对话" aria-label="新对话">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" aria-hidden="true"><path d="M12 5.6v12.8"/><path d="M5.6 12h12.8"/></svg>
+    </button>
+    <button class="ai-hbtn ai-close" id="aiClose" type="button" title="收起" aria-label="收起">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+           stroke-linecap="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>
+    </button>
+  </div>
+  <div class="ai-hist-pop" id="aiHistPop">
+    <div class="ai-hist-list" id="aiHistList"></div>
+  </div>
+  <div class="ai-msgs" id="aiMsgs"></div>
+  <!-- 消息排队（用户 2026-10-15）：回答中输入的消息先排队，答完接力；行内「直接发送」=插队立即发出 -->
+  <div class="ai-queue" id="aiQueue" hidden>
+    <button class="ai-queue-head" id="aiQueueHead" type="button" title="收起/展开">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h10"/>
+      </svg>
+      <span id="aiQueueCount">0 条排队</span>
+      <svg class="ic ai-queue-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M6 9.5 12 15.5 18 9.5"/>
+      </svg>
+    </button>
+    <div class="ai-queue-list" id="aiQueueList"></div>
+  </div>
+  <div class="ai-inputrow">
+    <div class="ai-grip" id="aiGrip" title="拖动调整输入框高度"></div>
+    <textarea class="ai-input" id="aiInput" rows="1" placeholder="描述任务，输入 / 调用技能"></textarea>
+    <button class="ai-send" id="aiSend" type="button" title="发送" aria-label="发送">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 19.2V6"/><path d="M6.7 11.3 12 6l5.3 5.3"/>
+      </svg>
+    </button>
+  </div>
+  <div class="ai-rz" id="aiRz" title="拖动调整窗口大小"></div>
+</div>
+
+<div class="shell">
+
+  <!-- ============ 活动栏（56px，5 个分组图标） ============ -->
+  <nav class="activity" aria-label="活动栏">
+    <button class="act-btn" type="button" data-group="工作台" title="工作台" aria-label="工作台">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 10.4 12 4l8 6.4"/>
+        <path d="M6.2 9.4V19.5h11.6V9.4"/>
+        <path d="M10 19.5v-4.8h4v4.8"/>
+      </svg>
+    </button>
+    <button class="act-btn" type="button" data-group="数据中心" title="数据中心" aria-label="数据中心">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3.4 3.6 8 12 12.6 20.4 8Z"/>
+        <path d="M3.6 12.2 12 16.8l8.4-4.6"/>
+        <path d="M3.6 16.3 12 20.9l8.4-4.6"/>
+      </svg>
+    </button>
+    <button class="act-btn" type="button" data-group="训练中心" title="训练中心" aria-label="训练中心">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M8.6 5.6v12.8L19 12Z"/>
+      </svg>
+    </button>
+    <button class="act-btn" type="button" data-group="模型" title="模型" aria-label="模型">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 11.8c0 4-3.6 7.2-8 7.2-.9 0-1.8-.13-2.6-.37L5 20.4l1.05-3.05C4.8 16.3 4 14.2 4 11.8 4 7.8 7.6 5 12 5s8 2.8 8 6.8Z"/>
+      </svg>
+    </button>
+    <div class="act-foot">
+      <button class="act-btn" type="button" data-group="回收站" data-page="recycle_dataset" title="回收站" aria-label="回收站">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 7h16"/>
+          <path d="M9 7V4.8h6V7"/>
+          <path d="M6.5 7l.9 12.2h9.2L17.5 7"/>
+          <path d="M10 10.6v6M14 10.6v6"/>
+        </svg>
+      </button>
+      <button class="act-btn" type="button" data-group="系统" data-page="settings" title="设置" aria-label="设置">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9.80 2.45 A9.80 9.80 0 0 1 14.20 2.45 L14.43 5.33 A7.10 7.10 0 0 1 16.56 6.56 L19.17 5.32 A9.80 9.80 0 0 1 21.37 9.13 L18.99 10.77 A7.10 7.10 0 0 1 18.99 13.23 L21.37 14.87 A9.80 9.80 0 0 1 19.17 18.68 L16.56 17.44 A7.10 7.10 0 0 1 14.43 18.67 L14.20 21.55 A9.80 9.80 0 0 1 9.80 21.55 L9.57 18.67 A7.10 7.10 0 0 1 7.44 17.44 L4.83 18.68 A9.80 9.80 0 0 1 2.63 14.87 L5.01 13.23 A7.10 7.10 0 0 1 5.01 10.77 L2.63 9.13 A9.80 9.80 0 0 1 4.83 5.32 L7.44 6.56 A7.10 7.10 0 0 1 9.57 5.33 L9.80 2.45 Z"/>
+          <circle cx="12" cy="12" r="3.3"/>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ============ 侧栏（252px） ============ -->
+  <aside class="sidebar" aria-label="侧栏">
+    <div class="side-head" id="sideHead">工作台</div>
+    <nav class="side-nav" id="sideNav" aria-label="导航"></nav>
+    <div class="side-foot">
+      <div class="proj-block">
+        <div class="proj-row">
+          <span class="proj-dot" id="projFootDot" title="连接状态"></span>
+          <span class="proj-name" id="projFootName" title="当前工程">—</span>
+        </div>
+        <div class="proj-path" id="projFootPath">—</div>
+        <button class="proj-close" id="projCloseBtn" type="button" title="关闭工程" aria-label="关闭工程">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="foot-tools">
+        <button class="foot-btn" id="projSwitchBtn" type="button" title="选择工程文件夹并切换">切换工程</button>
+        <button class="foot-btn" id="projNewBtn" type="button" title="选择文件夹作为新工程">新建工程</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ 内容区 ============ -->
+  <main class="content" id="content">
+
+    <!-- 总览 -->
+    <section class="page" data-page="home">
+      <div class="hero">
+        <h1 class="hero-title">总览</h1>
+      </div>
+      <div class="stack">
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">文章样本</div>
+            <div class="stat-val" id="stArticle">—</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">问答样本</div>
+            <div class="stat-val" id="stResponse">—</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">训练设备</div>
+            <div class="stat-val" id="stDevice">—</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">占用存储</div>   <!-- 文案（用户 2026-10-20）：本工程占用/文件占用 → 占用存储 -->
+            <div class="stat-val" id="stStorage">—</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2 class="card-title">日志</h2>
+            <button class="card-more" id="logClearBtn" type="button">一键清空</button>
+          </div>
+          <div class="card-body">
+            <div class="log-wrap">
+              <div class="log-fade log-fade-top"></div>
+              <div class="log-list" id="logList"></div>
+              <div class="log-fade log-fade-bot"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 设置 -->
+    <section class="page" data-page="settings">
+      <div class="hero">
+        <h1 class="hero-title">全局设置</h1>
+        <p class="hero-sub">外观与渲染性能</p>
+      </div>
+      <div class="stack">
+        <div class="card">
+          <div class="card-head">
+            <h2 class="card-title" title="主题即时生效，随配置持久化">外观</h2>
+          </div>
+          <div class="card-body">
+            <div class="seg" id="themeSeg" role="radiogroup" aria-label="主题">
+              <button class="seg-opt" type="button" role="radio" data-value="light" aria-checked="false">浅色</button>
+              <button class="seg-opt" type="button" role="radio" data-value="dark" aria-checked="true">深色</button>
+            </div>
+            <div class="switch-row" id="gpuRow">
+              <span class="switch-label">核显加速</span>
+              <button class="switch" id="gpuSwitch" type="button" role="switch"
+                      aria-checked="false" aria-label="核显加速"><span class="knob"></span></button>
+            </div>
+            <div class="restart-hint" id="restartHint" hidden>
+              <span>该设置需要重启应用后生效。</span>
+              <button class="btn btn-warn" id="restartBtn" type="button">立即重启</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2 class="card-title">数据集</h2>
+          </div>
+          <div class="card-body">
+            <div class="switch-row" id="dsAutoRow">
+              <span class="switch-label">蒸馏数据集默认引入</span>
+              <button class="switch on" id="dsAutoSwitch" type="button" role="switch"
+                      aria-checked="true" aria-label="蒸馏数据集默认引入"><span class="knob"></span></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="hostSettingCard">
+          <div class="card-head">
+            <h2 class="card-title">托管</h2>
+          </div>
+          <div class="card-body">
+            <div class="switch-row" id="hostForceRow">
+              <span class="switch-label">强制托管训练完成</span>
+              <button class="switch" id="hostForceSwitch" type="button" role="switch"
+                      aria-checked="false" aria-label="强制托管训练完成"><span class="knob"></span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 工程设置已移除：工程管理统一放在侧栏页脚（切换工程 / 新建工程），设置页不重复 -->
+
+        <div class="card">
+          <div class="card-head">
+            <h2 class="card-title">默认 API</h2>
+          </div>
+          <div class="card-body">
+            <div class="set-row">
+              <span class="set-k">base_url</span>
+              <input class="set-input" id="apiBase" type="text" placeholder="https://…/v1">
+            </div>
+            <div class="set-row">
+              <span class="set-k">api_key</span>
+              <input class="set-input" id="apiKey" type="password" autocomplete="off" placeholder="">
+            </div>
+            <div class="set-actions">
+              <button class="btn btn-accent" id="apiSave" type="button">保存</button>
+              <button class="btn" id="apiTest" type="button">测试</button>
+              <span class="set-status dot" id="apiStatus" title=""></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card device-card">
+          <div class="card-head">
+            <h2 class="card-title" title="auto = 有 xpu/cuda 就用，否则 cpu">训练设备</h2>
+          </div>
+          <div class="card-body device-body">
+            <div class="sysinfo" id="sysInfo">
+              <div class="si-row"><span class="si-k">CPU：</span><span class="si-v" id="siCpu">—</span></div>
+              <div class="si-row"><span class="si-k">XPU：</span><span class="si-v" id="siIgpu">—</span></div>
+              <div class="si-row"><span class="si-k">GPU：</span><span class="si-v" id="siGpu">—</span></div>
+              <div class="si-row"><span class="si-k">内存：</span><span class="si-v" id="siMem">—</span></div>
+            </div>
+            <div class="seg" id="deviceSeg" role="radiogroup" aria-label="训练设备">
+              <span class="seg-thumb" id="deviceThumb" aria-hidden="true"></span>
+              <button class="seg-opt" type="button" role="radio" data-value="auto" aria-checked="false">auto</button>
+              <button class="seg-opt" type="button" role="radio" data-value="cpu" aria-checked="false">cpu</button>
+              <button class="seg-opt" type="button" role="radio" data-value="cuda" aria-checked="false">cuda</button>
+              <button class="seg-opt" type="button" role="radio" data-value="xpu" aria-checked="false">xpu</button>
+              <div class="seg-toast" id="devToast"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2 class="card-title">未完成功能</h2>
+          </div>
+          <div class="card-body">
+            <div class="switch-row" id="unfinishedRow">
+              <span class="switch-label">开启</span>
+              <button class="switch" id="unfinishedSwitch" type="button" role="switch"
+                      aria-checked="false" aria-label="开启"><span class="knob"></span></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2 class="card-title">关于</h2>
+          </div>
+          <div class="card-body">
+            <div class="set-row"><span class="set-k">应用</span><span class="set-v" id="aboutName">—</span></div>
+            <div class="set-row"><span class="set-k">版本</span><span class="set-v" id="aboutVer">—</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 迁移空态（其余页面共用） -->
+    <section class="page" data-page="stub">
+      <div class="hero">
+        <h1 class="hero-title" id="stubTitle">—</h1>
+        <p class="hero-sub" id="stubSub">—</p>
+      </div>
+      <div class="stack">
+        <div class="card">
+          <div class="card-head">
+            <h2 class="card-title" id="stubCardTitle">—</h2>
+          </div>
+          <div class="card-body">
+            <p class="muted-note">该页正在迁移到新渲染管线</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 插件页容器：已迁移的页面把自己渲染进 #plugRoot -->
+    <section class="page" data-page="plug">
+      <div id="plugRoot"></div>
+    </section>
+
+    <!-- 未选工程时的遮罩 + 弹窗（用户 2026-10-17）：右侧内容整体变灰，只有这两个动作可点 -->
+    <div class="np-mask" id="npMask" hidden>
+      <div class="np-card" role="dialog" aria-modal="true" aria-labelledby="npTitle">
+        <div class="np-title" id="npTitle">还没有工程</div>
+        <div class="np-actions">
+          <button type="button" class="btn np-primary" id="npCreate">创建工程</button>
+          <button type="button" class="btn np-soft" id="npImport">导入工程</button>
+        </div>
+        <div class="np-status" id="npStatus"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="pages/_registry.js"></script>
+<script src="ai_prompts.js"></script>
+<script src="i18n.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

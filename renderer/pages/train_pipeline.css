@@ -1,0 +1,282 @@
+/* EAI_Studio · pages/train_pipeline.css ——「训练流水线」页样式（用户 2026-10-17）
+   右列排版/间距与预训练页同口径：grid 2fr/3fr gap 20、卡片间距 20、
+   按钮 100×36 间距 8、瓷片 132×100、日志灰框 1px 边框 + 圆角 10 + 内距 12。 */
+
+.pl-grid { display: grid; grid-template-columns: 2fr 3fr; gap: 20px; align-items: start; }
+@media (max-width: 900px) { .pl-grid { grid-template-columns: 1fr; } }
+.pl-col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+
+/* ---------- 动作行 ---------- */
+.pl-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pl-actions .btn,
+.pl-actions .pl-btn2 {
+  box-sizing: border-box;
+  width: 100px;
+  height: 36px;
+  padding: 0;
+  margin: 0;
+  justify-content: center;
+}
+.btn.pl-danger { background: var(--ERR_SOFT); color: var(--ERR); border-color: var(--ERR); }
+.btn.pl-danger:disabled:hover { background: var(--ERR_SOFT); }
+.btn:disabled { opacity: 0.42; cursor: not-allowed; }
+.pl-btn2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  padding: 7px 14px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-size: 10pt;
+  cursor: default;
+}
+.pl-btn2:hover { background: var(--BTN2_BG); color: var(--BTN2_FG); }
+.pl-btn2:disabled { opacity: 0.42; cursor: not-allowed; }
+.pl-ic { display: inline-flex; flex: none; width: 15px; height: 15px; color: inherit; }
+.pl-ic svg { width: 100%; height: 100%; display: block; }
+
+/* ---------- 步骤列表 ---------- */
+/* 标题与第一张步骤卡的间距（用户 2026-10-17：原来太近） */
+.pl-title { margin: 0 0 20px; }
+
+.pl-steps { display: flex; flex-direction: column; gap: 8px; }
+.pl-empty { margin: 2px 0 10px; }
+.pl-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  min-height: 40px;      /* 保住原行高：× 收小后行高从 40 掉到 38，拖动步距是「行高+8」得跟着稳 */
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  background: var(--CARD_ALT);
+  cursor: grab;
+  /* 拖动让位动效（用户 2026-10-17 二轮）：其它行平移由 JS 写 transform，这里只给过渡 */
+  transition: border-color 140ms ease, background-color 140ms ease, opacity 140ms ease,
+              transform 180ms cubic-bezier(.2, .7, .3, 1);
+  will-change: transform;
+}
+.pl-step:hover { border-color: var(--INK3); }   /* 可点开改参数（用户 2026-10-17） */
+.pl-step:active { cursor: grabbing; }
+.pl-step.pl-dragging { opacity: 0.45; }
+.pl-idx {
+  flex: none;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--ACCENT, #4f6ef7);
+  color: #fff;
+  font-size: 9pt;
+  line-height: 20px;
+  text-align: center;
+}
+.pl-name { font-size: 10pt; color: var(--INK); }
+.pl-out {
+  margin-left: auto;
+  font-size: 9pt;
+  color: var(--INK3);
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pl-out-empty { color: var(--ERR); opacity: 0.75; }
+.pl-ops { display: flex; gap: 2px; flex: none; }
+.pl-op {
+  /* × 放大一档（用户 2026-10-20：18×18 / 9px 的叉太小不好点） */
+  width: 22px; height: 22px;
+  border: 1px solid var(--LINE);
+  border-radius: 6px;
+  background: var(--CARD);
+  color: var(--INK3);
+  font-size: 13px;
+  line-height: 1;
+  padding: 0;
+  cursor: default;
+}
+.pl-op:hover:not(:disabled) { color: var(--INK); }
+.pl-op:hover:not(:disabled) { background: var(--BTN2_BG); color: var(--BTN2_FG); }
+.pl-op:disabled { opacity: 0.35; }
+.pl-op-del:hover:not(:disabled) { background: var(--ERR_SOFT); color: var(--ERR); border-color: var(--ERR); }
+
+/* ---------- 「＋」添加卡（与步骤行同尺寸，图标同仓库页） ---------- */
+.pl-addcard {
+  margin-top: 8px;
+  height: 40px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  background: var(--CARD);
+  transition: border-color 140ms ease, background-color 140ms ease;
+}
+.pl-addcard:hover { border-color: var(--ACCENT, #4f6ef7); background: var(--CARD_ALT); }
+.pl-addcard.pl-locked { opacity: 0.45; pointer-events: none; }
+.pl-addbtn {
+  width: 34px; height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--INK3);
+  cursor: pointer;
+  transition: color 160ms ease, transform 200ms cubic-bezier(.34, 1, .5, 1);
+}
+.pl-addbtn:hover { color: var(--ACCENT, #4f6ef7); }
+.pl-addbtn:active { transform: scale(0.94); }
+
+/* ---------- 添加弹窗 ---------- */
+.pl-mask {
+  position: fixed; inset: 0; z-index: 90;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(8, 10, 16, 0.38);
+}
+.pl-dlg {
+  /* 固定尺寸（用户 2026-10-17）：切换训练方式时字段从 4 行跳到 9 行，弹窗不能跟着变大变小。
+     宽度（用户 2026-10-20）：按「输入框宽度和单独页一致」倒推 ——
+     标签 132 + 10 + 输入 313 + 10 + 命名提示 38 = 503 内宽 → 545 外宽；
+     训练方式芯片会折成两行，字段区本来就能滚，不影响。 */
+  width: 545px;
+  max-width: calc(100vw - 48px);
+  /* 2026-10-20：字段表与训练页对齐后「预训练」有 11 行，660 放不下会出滚动条 → 抬到 720 */
+  height: 720px;
+  max-height: calc(100vh - 96px);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 20px;
+  border: 1px solid var(--LINE);
+  border-radius: 14px;
+  background: var(--CARD);
+  box-shadow: 0 18px 48px rgba(6, 10, 24, 0.24);
+}
+.pl-dlg-title { font-size: 11pt; font-weight: 700; color: var(--INK); margin-bottom: 16px; }
+.pl-dlg-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; flex: none; }
+/* 参数区（用户 2026-10-17 二轮：每步自带全套参数）：字段多时可滚，标题/按钮固定 */
+.pl-dlg-fields { flex: 1 1 auto; overflow-y: auto; min-height: 0; padding-right: 2px; }
+.pl-dlg-empty { margin: 6px 0 0; font-size: 10pt; color: var(--INK3); }
+.pl-dlg-check { display: inline-flex; align-items: center; gap: 8px; font-size: 10pt; color: var(--INK2); }
+.pl-dlg-check input { width: 15px; height: 15px; accent-color: var(--ACCENT, #4f6ef7); }
+.pl-chip {
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  padding: 6px 12px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-size: 10pt;
+  cursor: default;
+}
+/* 选中态照训练页 .tl-chip.on：主色实心 + 白字（用户 2026-10-18） */
+.pl-chip.on {
+  background: var(--ACCENT);
+  border-color: var(--ACCENT);
+  color: var(--INK_INV);
+}
+.pl-chip.on:hover:not(:disabled) { background: var(--ACCENT); color: var(--INK_INV); }
+.pl-chip:disabled { opacity: 0.35; }
+
+.pl-dlg-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+
+/* 挂载目标层：胶囊多选（用户 2026-10-20，照单独 LoRA 页） */
+.pl-chips-field { flex: 1 1 auto; display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.pl-chip-opt {
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  padding: 5px 12px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-size: 10pt;
+  cursor: pointer;
+}
+.pl-chip-opt.on { background: var(--ACCENT); border-color: var(--ACCENT); color: var(--INK_INV); }
+.pl-chip-opt:active { transform: translateY(1px); }
+
+/* 段选（用户 2026-10-20）：裁切方法 / 量化方案，样式照单独页的分段控件 */
+.pl-seg {
+  /* 宽度与普通输入框一致（用户 2026-10-20）：原来 flex:1 会撑到行尾、比输入框宽一截 */
+  flex: 0 0 313px; width: 313px; display: inline-flex; min-width: 0;
+  border: 1px solid var(--LINE); border-radius: 8px; overflow: hidden;
+  background: var(--CARD_ALT);
+}
+.pl-seg-opt {
+  flex: 1 1 auto; border: 0; padding: 6px 10px;
+  background: transparent; color: var(--INK2); font-size: 10pt; cursor: pointer;
+}
+.pl-seg-opt + .pl-seg-opt { border-left: 1px solid var(--LINE); }
+.pl-seg-opt.on { background: var(--ACCENT); color: var(--INK_INV); }
+.pl-seg-opt:active { transform: translateY(1px); }
+
+/* 权重只读说明（用户 2026-10-20：流水线不选权重，用上一步的产物） */
+.pl-dlg-auto {
+  flex: 1 1 auto; min-width: 0;
+  padding: 6px 10px;
+  border: 1px dashed var(--LINE);
+  border-radius: 8px;
+  font-size: 9.5pt;
+  color: var(--INK2);
+  background: transparent;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pl-dlg-auto-empty { color: var(--INK3); }
+/* 弹窗里的状态小球：到输入框右边 10px，行尾对齐 */
+.pd-dot-dlg { margin-left: 0; margin-right: 2px; }
+/* 命名框右侧的「未命名 / 重复 / √」：卡片里的 -11px 负边距在弹窗里不要 */
+.pl-dlg .wn-hint { margin-right: 0; margin-left: 0; }   /* 左边距 0：绿点与参数行小球同一列（用户 2026-10-20） */
+.pl-dlg-k {
+  /* 2026-10-20：Multi-Token Prediction 不许折行、也不许被裁 —— 9pt 下单行约 118px */
+  flex: none; width: 132px; font-size: 9pt; color: var(--INK2);
+  white-space: nowrap;
+}
+.pl-dlg-input:focus { outline: none; border-color: var(--ACCENT_LINE); }
+/* 输入框宽度 = 单独页的值（用户 2026-10-20：LoRA 页实测 313px），不再随弹窗拉满 */
+.pl-dlg-input {
+  flex: 0 0 313px;
+  width: 313px;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 6px 10px;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  background: var(--CARD_ALT);
+  color: var(--INK);
+  font-size: 10pt;
+}
+.pl-dlg-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; flex: none; }
+.pl-dlg-cancel {
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  padding: 7px 16px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-size: 10pt;
+  cursor: default;
+}
+.pl-dlg-cancel:hover { background: var(--BTN2_BG); color: var(--BTN2_FG); }
+.pl-dlg-ok { box-sizing: border-box; width: 100px; height: 36px; padding: 0; justify-content: center; }
+
+/* ---------- 训练输出 ---------- */
+.pl-logbox {
+  background: var(--LOG_BG);
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  padding: 12px;
+  height: 240px;                  /* 固定高度（用户 2026-10-18）：不随日志行数变 */
+  max-height: none;
+  box-sizing: border-box;
+  overflow: auto;
+}
+.pl-log {
+  margin: 0;
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 9.5pt;
+  line-height: 1.55;
+  color: var(--INK2);
+  white-space: pre-wrap;
+  word-break: break-all;
+  min-height: 38px;
+}
+.pl-log.pl-err { color: var(--ERR); }

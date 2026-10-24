@@ -1,0 +1,127 @@
+/* ============================================================
+   格式转换（用户 2026-10-17 重制）
+   ------------------------------------------------------------
+   页面整体借 pages/response.css 的 rs-* 类（响应蒸馏/网页整理/格式转换 三页同一套
+   几何、字号、间距），这里只补它没有的两块：
+     · 识别结果 / 运行统计的「键-值」行（rs-facts / rs-fact / rs-fact-k / rs-fact-v）
+     · 运行状态卡里的五列统计小行（rs-stats-mini）
+   ============================================================ */
+
+/* 识别结果：一行一个「键  值」，值可折行 */
+.rs-facts {
+  margin-top: 10px;
+  border-top: 1px solid var(--LINE2, #eef1f7);
+  padding-top: 8px;
+}
+
+.rs-fact {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 10px;
+  padding: 3px 0;
+  font-size: 9.5pt;
+  line-height: 1.5;
+}
+
+.rs-fact-k { color: var(--INK3, #8b93a8); }
+
+.rs-fact-v {
+  color: var(--INK2, #5a6379);
+  min-width: 0;
+  word-break: break-word;
+}
+.rs-fact-v.ok { color: var(--OK, #3d9077); }
+.rs-fact-v.warn { color: var(--WARN, #94743a); }
+.rs-fact-v.idle { color: var(--INK3, #8b93a8); }
+
+/* 运行状态卡：五列统计（记录数/已转换/失败/产物/耗时） */
+.rs-stats-mini {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px 10px;
+  border-top: 1px solid var(--LINE2, #eef1f7);
+  margin-top: 10px;
+  padding-top: 8px;
+}
+.rs-stats-mini .rs-fact { display: block; padding: 0; }
+.rs-stats-mini .rs-fact-k { display: block; font-size: 8.5pt; }
+.rs-stats-mini .rs-fact-v {
+  display: block;
+  font-size: 10.5pt;
+  font-family: 'Cascadia Mono', monospace;
+  color: var(--INK, #22283a);
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rs-stats-mini .rs-fact-v.idle { color: var(--INK3, #8b93a8); }
+
+/* 源文件卡的样本预览：给个和运行日志同款的框（rs-preview 原本无边框，空着像一块白） */
+.rs-collect .rs-preview {
+  min-height: 96px;
+  max-height: 120px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border: 1px solid var(--LINE, #dfe3ee);
+  border-radius: 10px;
+  background: var(--CARD_ALT, #f8f9fd);
+  font-family: 'Cascadia Mono', monospace;
+  font-size: 9pt;
+  line-height: 1.55;
+  color: var(--INK3, #8b93a8);
+}
+
+/* 单模型页签：固定三等分，一张卡占 1/3，右侧两格留空（auto-fit 会把单卡拉满整行） */
+/* 选择器加大权重：response.css 在切页时才动态插入，同权重会盖掉这里的规则 */
+.rs-panels .rs-grid3.rs-grid3-3col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+/* 源文件行：输入框吃满剩余宽度，按钮跟在右边同一行（用 .rs-row 会被 100% 宽的输入挤下去） */
+.rs-srcrow { display: flex; align-items: center; gap: 8px; }
+.rs-srcrow .rs-input { flex: 1 1 auto; width: auto; min-width: 0; }
+.rs-srcrow .rs-btn { flex: 0 0 auto; }
+
+/* 模型卡说明行别贴住输入框 */
+.rs-modelcard .rs-note { margin-top: 4px; }
+
+/* 「选择」按钮菜单（用户 2026-10-21）：选择文件 / 选择文件夹 */
+.fc-menu {
+  position: fixed;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  min-width: 132px;
+  padding: 4px;
+  background: var(--CARD, #fff);
+  border: 1px solid var(--LINE, #dfe3ee);
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(12, 18, 38, .18);
+}
+.fc-menu-item {
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--INK, #1c2438);
+  font-family: inherit;
+  font-size: 10pt;
+  text-align: left;
+  cursor: default;
+}
+.fc-menu-item:hover { background: var(--CARD_ALT, #f8f9fd); }
+
+/* 输出文件名行：输入框 + 右侧「使用源文件名」勾选（用户 2026-10-21） */
+.fc-name-row { display: flex; align-items: center; gap: 10px; }
+.fc-name-row .rs-input { flex: 1 1 auto; }
+.fc-srcname { flex: none; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+
+/* 空态不留小字（用户 2026-10-21）：识别结果整块收掉，预览框顶上来 */
+.fc-facts:empty { display: none; }
+.rs-collect .rs-preview { margin-top: 6px; }
+
+/* 数据管理：表行可点开预览 */
+.rs-table tbody tr { cursor: pointer; }

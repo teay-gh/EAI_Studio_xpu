@@ -1,0 +1,328 @@
+/* ============================================================
+   EAI_Studio · pages/train_lora.css ——「LoRA 微调」页样式
+   ------------------------------------------------------------
+   只补充 styles.css 里没有的类，一律 tl- 前缀；颜色只取 CSS 变量，
+   字号一律 pt，字体族与 .mono-line 一致（Cascadia Mono）。
+   复用：.card / .card-head / .card-title / .card-sub / .card-body /
+         .stats / .stat / .hero / .stack / .btn / .btn-accent /
+         .seg / .muted-note / .mono-line
+   ============================================================ */
+
+/* ---------- 动作行 ---------- */
+.tl-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* 口径 2026-10-16：三钮「开始/停止/刷新」与预训练页完全一致（100×36、间距 8） */
+.tl-actions .btn,
+.tl-actions .tl-btn2 {
+  width: 100px; height: 36px;
+  padding: 0; margin: 0;
+  box-sizing: border-box;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.tl-actions .tl-spacer { margin-left: auto; }
+
+.tl-note { margin: 0; }
+.tl-note.ok { color: var(--OK); }
+.tl-note.tl-err { color: var(--ERR); }
+
+/* 次级按钮（.btn 只给了基座 + accent；ghost / danger 在此补齐） */
+.tl-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--BTN2_BG);
+  color: var(--BTN2_FG);
+}
+.tl-btn-ghost:hover:not(:disabled) { background: var(--BTN2_ACTIVE); }
+
+.tl-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--ERR_SOFT);
+  color: var(--ERR);
+  border-color: var(--ERR);
+}
+
+.tl-start { display: inline-flex; align-items: center; gap: 6px; }
+
+/* 「刷新」次按钮（与预训练 tp-btn2 同规格；用户 2026-10-16） */
+.tl-btn2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  padding: 7px 14px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-size: 10pt;
+  cursor: default;
+}
+
+.tl-actions .btn:disabled,
+.tl-actions .tl-btn-ghost:disabled,
+.tl-actions .tl-btn-danger:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+/* 停止钮两态参考继续预训练（用户 2026-10-16）：禁用不灰化，红系原色只降透明度 */
+.btn.tl-btn-danger:disabled {
+  background: var(--ERR_SOFT);
+  color: var(--ERR);
+  border-color: var(--ERR);
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.tl-ico { display: inline-flex; width: 15px; height: 15px; }   /* 15px 与其余训练页图标一致（用户 2026-10-16） */
+.tl-ico svg { width: 15px; height: 15px; }
+
+/* ---------- 两列栅格（Tk 权重 2 : 3） ---------- */
+.tl-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: 20px;
+  align-items: start;
+}
+.tl-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+/* 训练运行中：左侧参数整列置灰禁改（用户 2026-10-20）——灰的是参数列，右侧日志/曲线照常。 */
+.tl-running .tl-grid > .tl-col:first-child { opacity: .55; pointer-events: none; }
+@media (max-width: 1080px) {
+  .tl-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- 参数行 ---------- */
+.tl-rows { display: flex; flex-direction: column; }
+.tl-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 4px 0;
+}
+.tl-k {
+  flex: 0 0 118px;
+  font-size: 9pt;
+  color: var(--INK2);
+}
+.tl-v {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 10pt;
+  color: var(--INK);
+  word-break: break-all;
+}
+.tl-v.ok { color: var(--OK); }
+
+/* 可编辑参数输入框（把只读展示行接真 → 输入框） */
+.tl-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 5px 9px;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;   /* 圆角对齐其他训练页输入框（用户 2026-10-17：LoRA 命名框圆角与别页不一致；tp/tc/tf/cm/lm 都是 8px） */
+  background: var(--CARD_ALT);
+  color: var(--INK);
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 10pt;
+}
+.tl-input:focus { outline: none; border-color: var(--ACCENT_LINE); }   /* 与 APIKEY 输入同款顶格高亮（用户 2026-10-15） */
+.tl-input:disabled { opacity: 0.6; }
+.tl-input-path { font-size: 9pt; }
+
+/* 布尔行 = 预训练 tp-check 同款（用户 2026-10-16）：行内 [勾选框][参数名] */
+.tl-bool-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 1px 0;
+}
+.tl-check {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--ACCENT);
+}
+.tl-bool-label { font-size: 10pt; color: var(--INK2); }
+
+.tl-sep {
+  height: 1px;
+  background: var(--LINE);
+  margin: 14px 0;   /* 边距折叠取大 → 命名框→线→参数 间距 14/14，与预训练一致（用户 2026-10-16） */
+}
+
+/* ---------- 基座权重选择行（与继续预训练 tc-* 同款；用户 2026-10-16） ---------- */
+.tl-path-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+}
+/* 基座权重行：整行不可点，只有「选择」按钮弹弹窗（用户 2026-10-17，同 LoRA 合并页） */
+.tl-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--INK3);
+}
+.tl-dot-ghost { visibility: hidden; pointer-events: none; }   /* 只占位不显示（用户 2026-10-23） */
+.tl-dot.ok { background: var(--OK); }
+.tl-dot.err { background: var(--ERR); }
+.tl-path {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 9pt;
+  color: var(--INK2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tl-path.empty { color: var(--INK3); }
+.tl-pick {
+  appearance: none;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  padding: 0 12px;
+  border: 1px solid var(--LINE);
+  border-radius: 6px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-size: 9pt;
+  cursor: pointer;
+  transition: transform 300ms cubic-bezier(.34, 1.32, .5, 1);
+}
+.tl-pick:hover { background: var(--BTN2_BG); color: var(--BTN2_FG); }
+.tl-pick:active { transform: scale(.96); }
+.tl-size {
+  flex: none;
+  font-size: 9pt;
+  color: var(--INK3);
+  font-variant-numeric: tabular-nums;
+}
+.tl-size.tl-err { color: var(--ERR); }
+
+/* ---------- 训练日志（外框定距 + 内层滚动，与预训练页同款） ---------- */
+.tl-logbox {   /* 与 .tp-logbox 同款（用户 2026-10-17：右侧格式/间距对齐预训练） */
+  background: var(--LOG_BG);
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  padding: 12px;
+}
+.tl-log {
+  margin: 0;
+  padding: 0;
+  background: none;
+  color: var(--LOG_FG);
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 9pt;
+  line-height: 1.55;
+  max-height: 220px;   /* 外框总高 240 不变 */
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  scrollbar-width: none;
+}
+.tl-log::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.tl-log-sub { font-variant-numeric: tabular-nums; }
+
+/* ---------- 两块日志区：训练输出（实时）/ Loss 日志表（CSV） ---------- */
+/* 固定高度（用户 2026-10-18）：空态/几行/几十行都同一高度，不再随文字变高变矮 */
+.tl-log-live { height: 216px; max-height: none; min-height: 0; }   /* 外框总高 240 */
+.tl-log-csv { height: 176px; max-height: none; }                  /* 外框总高 200 */
+.tl-log.tl-err { color: var(--ERR); }
+
+/* ---------- Loss 曲线 ---------- */
+/* 高度由 JS 按窗口可用空间收口（fitChart，2026-10-17）：CSS 只留上下限与「svg 撑满」 */
+.tl-chart { width: 100%; height: 180px; min-height: 180px; }   /* 固定高度（用户 2026-10-18） */
+.tl-chart svg { width: 100%; height: 100%; display: block; }
+.tl-chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 0;
+  color: var(--INK3);
+  font-size: 9pt;
+}
+
+/* 模型权重命名：从参数里分离出来、放参数卡上方，下缘分隔线（用户 2026-10-15） */
+
+/* ---------- 挂载目标层：四个标签（用户 2026-10-17） ----------
+   四列均分撑满输入框那一列（左端=输入框左、右端=输入框右），高 28 = 输入框高；
+   点一下切换选中，选中态用主色实心。 */
+.tl-row-chips { align-items: center; }   /* 标签是块级按钮，按中线对齐（输入框行是 baseline） */
+
+/* 横条参数行（用户 2026-10-19）：与指令微调页「验证集比例」同一套轨道/滑块 */
+.tl-row-range { align-items: center; }
+.tl-range-box { flex: 1 1 auto; min-width: 0; height: 28px; display: flex; align-items: center; gap: 10px; }
+.tl-range {
+  -webkit-appearance: none; appearance: none;
+  flex: 1 1 auto; min-width: 0; height: 3px;
+  border-radius: 2px; background: var(--LINE); cursor: default;
+}
+.tl-range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 13px; height: 13px; border-radius: 50%;
+  background: var(--ACCENT);
+  border: 2px solid var(--CARD);
+  box-shadow: 0 0 0 1px var(--ACCENT_LINE);
+}
+.tl-range:active::-webkit-slider-thumb { transform: scale(1.08); }
+.tl-range:focus { outline: none; }
+.tl-range-v {
+  flex: none; width: 3.6em; text-align: right;
+  font-size: 9.5pt; color: var(--INK); font-variant-numeric: tabular-nums;
+}
+/* 2026-10-23（用户）：原来是 grid 四等分，每格 46.7px 是硬给的 —— 「fc_out」内容要 46.5px，
+   格子一窄就被省略号截成「fc_o…」。改成 flex：每个药丸按内容取宽、剩余空间再按比例分，
+   最后一个药丸右缘正好落在容器右边（= 输入框右缘），文字也不截断。 */
+.tl-chips-4 {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  gap: 6px;
+}
+.tl-chips-4 > .tl-chip {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.tl-chip {
+  height: 28px;
+  padding: 0 2px;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 9pt;    /* fc_out 是 6 字符：9pt 才能在 1/4 宽度里放全，不出现省略号 */
+  line-height: 26px;
+  text-align: center;
+  cursor: default;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: transform 300ms cubic-bezier(.34, 1.32, .5, 1),
+              background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+/* 按压：按下 94% + 90ms 快速收缩，松手按基态 300ms 回弹（用户 2026-10-17） */
+.tl-chip:active { transform: scale(.94); transition: transform 90ms ease; }
+.tl-chip:hover { background: var(--BTN2_BG); color: var(--BTN2_FG); }
+.tl-chip.on {
+  background: var(--ACCENT);
+  border-color: var(--ACCENT);
+  color: var(--INK_INV);
+}

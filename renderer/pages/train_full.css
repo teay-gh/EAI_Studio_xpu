@@ -1,0 +1,403 @@
+/* ============================================================
+   EAI_Studio · pages/train_full.css ——「指令微调」页样式
+   只复用 styles.css 已有的 .stack/.card/.card-head/.card-title/.card-sub/
+   .card-body/.stats/.stat/.stat-label/.stat-val/.stat-hint/.hero-title/.hero-sub/.btn/.btn-accent/
+   .seg/.muted-note/.mono-line 等；styles.css 里没有 .kv/.mono/.btn2/.field，
+   本页自建的类一律用 tf- 前缀。
+   颜色只用 CSS 变量；字号一律 pt；图标只用内联 SVG。
+   ============================================================ */
+
+/* 内联 SVG 图标容器（stroke=currentColor 继承文字色） */
+.tf-ic {
+  display: inline-flex;
+  flex: none;
+  width: 15px;
+  height: 15px;
+  color: inherit;
+}
+.tf-ic svg { width: 100%; height: 100%; display: block; }
+
+/* ---------- 迁移期不启动训练的提示条 ---------- */
+.tf-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 9pt;
+  line-height: 1.55;
+  background: var(--WARN_SOFT);
+  color: var(--WARN);
+  border: 1px solid var(--WARN);
+}
+.tf-banner .tf-ic { width: 16px; height: 16px; margin-top: 1px; }
+.tf-banner b { font-weight: 700; }
+.tf-banner .tf-banner-body { min-width: 0; }
+.tf-banner .tf-banner-title { font-weight: 700; margin-bottom: 2px; }
+.tf-banner .tf-banner-text { opacity: .95; }
+
+/* 状态条三态（就绪用默认 WARN 底色；训练中 / 完成 / 出错分别换色） */
+.tf-banner.run {
+  background: var(--ACCENT_SOFT);
+  color: var(--ACCENT_TEXT);
+  border-color: var(--ACCENT_LINE);
+}
+.tf-banner.ok {
+  background: var(--OK_SOFT);
+  color: var(--OK);
+  border-color: var(--OK);
+}
+.tf-banner.err {
+  background: var(--ERR_SOFT);
+  color: var(--ERR);
+  border-color: var(--ERR);
+}
+
+/* ---------- 主区两栏（对齐 Tk body 权重 2 : 3） ---------- */
+.tf-grid {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 20px;
+  align-items: start;
+}
+.tf-col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+/* 训练运行中：左侧参数整列置灰禁改（用户 2026-10-20）——灰的是参数列，右侧日志/曲线照常。 */
+.tf-running .tf-grid > .tf-col:first-child { opacity: .55; pointer-events: none; }
+@media (max-width: 1080px) {
+  .tf-grid { grid-template-columns: 1fr; }
+}
+
+/* ---------- 参数表单 ---------- */
+.tf-form { display: flex; flex-direction: column; gap: 8px; }
+.tf-row { display: flex; align-items: center; gap: 10px; }
+.tf-label {
+  flex: none;
+  width: 120px;
+  font-size: 9pt;
+  color: var(--INK2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tf-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  padding: 5px 9px;
+  background: var(--CARD_ALT);
+  color: var(--INK);
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 10pt;
+}
+.tf-input:focus { outline: none; border-color: var(--ACCENT_LINE); }   /* 与 APIKEY 输入同款顶格高亮（用户 2026-10-15） */
+.tf-input:disabled { color: var(--INK2); }
+
+/* ---------- 横条（用户 2026-10-19）：与对话页「上下文长度」同一套轨道/滑块 ---------- */
+.tf-range-box { flex: 1 1 auto; min-width: 0; height: 28px; display: flex; align-items: center; gap: 10px; }
+.tf-range {
+  -webkit-appearance: none; appearance: none;
+  flex: 1 1 auto; min-width: 0; height: 3px;
+  border-radius: 2px; background: var(--LINE); cursor: default;
+}
+.tf-range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 13px; height: 13px; border-radius: 50%;
+  background: var(--ACCENT);
+  border: 2px solid var(--CARD);
+  box-shadow: 0 0 0 1px var(--ACCENT_LINE);
+}
+.tf-range:active::-webkit-slider-thumb { transform: scale(1.08); }
+.tf-range:focus { outline: none; }
+.tf-range-v {
+  flex: none; width: 3.6em; text-align: right;
+  font-size: 9.5pt; color: var(--INK); font-variant-numeric: tabular-nums;
+}
+
+
+/* 分隔线 */
+.tf-divider {
+  height: 1px;
+  background: var(--LINE);
+  margin: 6px 0;   /* 与预训练 .tp-sep 同值：命名框→线→参数 间距 14/14（用户 2026-10-16） */
+  border: 0;
+}
+
+/* 布尔项（自绘勾选框） */
+.tf-check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 2px 0;
+  font-size: 10pt;
+  color: var(--INK);
+  cursor: default;
+}
+.tf-box {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--ACCENT_LINE);
+  border-radius: 4px;
+  background: var(--CARD_ALT);
+  color: transparent;
+}
+.tf-box .tf-ic { width: 12px; height: 12px; }
+.tf-box.on { background: var(--ACCENT); border-color: var(--ACCENT); color: var(--INK_INV); }
+
+/* ---------- 语料 / 权重路径行 ---------- */
+.tf-path-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+}
+.tf-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--INK3);
+}
+.tf-dot.ok { background: var(--OK); }
+.tf-dot.err { background: var(--ERR); }
+.tf-path {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 9pt;
+  color: var(--INK2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tf-path.empty { color: var(--INK3); }
+
+/* 「选择」按钮（权重左侧，用户 2026-10-15）：小号次级按钮 */
+.tf-pick {
+  appearance: none;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  padding: 0 12px;
+  border: 1px solid var(--LINE);
+  border-radius: 6px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-size: 9pt;
+  cursor: pointer;
+  transition: transform 300ms cubic-bezier(.34, 1.32, .5, 1);
+}
+.tf-pick:hover { background: var(--BTN2_BG); color: var(--BTN2_FG); }
+.tf-pick:active { transform: scale(.96); }
+
+/* 状态行空着时不占位 */
+.tf-note:empty { display: none; margin: 0; }
+.tf-size {
+  flex: none;
+  font-size: 9pt;
+  color: var(--INK3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 参数说明条（对齐 Tk help_label） */
+.tf-help {
+  margin-top: 12px;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--ACCENT_SOFT);
+  color: var(--ACCENT_TEXT);
+  font-size: 9pt;
+  line-height: 1.55;
+}
+
+/* ---------- 操作按钮 ---------- */
+/* 口径 2026-10-14：开始 / 停止等宽（162px）、都靠左；无「保存配置」 */
+.tf-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+/* 口径 2026-10-15：与预训练页同款 —— 三钮等宽等高 100×36、间距 8 */
+.tf-actions .btn,
+.tf-actions .tf-btn2 {
+  box-sizing: border-box;
+  width: 100px;
+  height: 36px;
+  padding: 0;
+  margin: 0;
+  justify-content: center;
+}
+.tf-actions .tf-spacer { flex: 1 1 auto; }
+
+/* 次级按钮（styles.css 无 .btn2，自建） */
+.tf-btn2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  padding: 7px 14px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-size: 10pt;
+  cursor: default;
+}
+.tf-btn2:hover { background: var(--BTN2_BG); color: var(--BTN2_FG); }
+
+/* 主按钮色档（配合 styles.css 的 .btn 基类） */
+.btn.tf-btn-ok {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--OK);
+  color: var(--INK_INV);
+  border-color: transparent;
+}
+.btn.tf-btn-ok:hover { background: var(--OK); }
+.btn.tf-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;   /* 与预训练一致：.btn 全局 gap 6（用户 2026-10-16 停止钮图标↔文字间距） */
+  background: var(--ERR_SOFT);
+  color: var(--ERR);
+  border-color: var(--ERR);
+}
+.btn.tf-btn-danger:hover { background: var(--ERR_SOFT); }
+.btn.tf-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  border-color: var(--LINE);
+}
+.btn.tf-btn-ghost:hover { background: var(--BTN2_BG); color: var(--BTN2_FG); }
+
+/* 迁移期置灰：所有启动/保存/导出动作 */
+.btn:disabled, .tf-btn2:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+.btn.tf-btn-ok:disabled:hover { background: var(--OK); }
+.btn.tf-btn-danger:disabled:hover { background: var(--ERR_SOFT); }
+.btn.tf-btn-ghost:disabled:hover { background: var(--CARD_ALT); }
+.tf-btn2:disabled:hover { background: var(--CARD_ALT); color: var(--INK2); }
+
+/* 动作说明小字 */
+.tf-note { margin: 10px 0 0; font-size: 9pt; color: var(--INK3); }
+
+/* ---------- 训练日志（外框定距 + 内层滚动，与预训练页同款） ---------- */
+.tf-logbox {
+  background: var(--LOG_BG);
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  padding: 12px;
+}
+.tf-pre {
+  margin: 0;
+  max-height: 216px;   /* 外框总高 240 不变 */
+  overflow: auto;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--LOG_FG);
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 9pt;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  scrollbar-width: none;
+}
+.tf-pre::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.tf-empty {
+  padding: 16px 4px;
+  font-size: 10pt;
+  color: var(--INK3);
+}
+
+/* ---------- Loss 曲线 ---------- */
+/* Loss 曲线（与预训练页同款：外框 + svg + 空态）
+   高度由 JS 按窗口可用空间收口（fitChart，2026-10-17）：CSS 这里只留上下限与「撑满父框」。 */
+.tf-chart {
+  height: 180px;                  /* 固定高度（用户 2026-10-18） */
+  min-height: 0;
+  background: var(--CARD_ALT);
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  padding: 8px;
+}
+.tf-chart svg { width: 100%; height: 100%; display: block; }
+.tf-chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 0;
+  color: var(--INK3);
+  font-size: 9pt;
+}
+.tf-chart-empty.tf-err { color: var(--ERR); }
+.tf-legend {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 8px;
+  font-size: 9pt;
+  color: var(--INK3);
+}
+.tf-legend .tf-key { display: inline-flex; align-items: center; gap: 6px; }
+.tf-legend .tf-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 0;
+  border-top: 2px solid var(--ACCENT);
+}
+.tf-legend .tf-swatch.val { border-top-color: var(--OK); }
+
+/* ---------- 检查点 / 导出清单 ---------- */
+.tf-asset-group { margin-top: 10px; }
+.tf-asset-group:first-child { margin-top: 0; }
+.tf-asset-head {
+  font-size: 9pt;
+  font-weight: 700;
+  color: var(--INK2);
+  margin-bottom: 4px;
+}
+.tf-asset-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--LINE_SOFT);
+}
+.tf-asset-row:last-child { border-bottom: 0; }
+.tf-asset-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 9pt;
+  color: var(--INK);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tf-asset-meta {
+  flex: none;
+  font-size: 9pt;
+  color: var(--INK3);
+  font-variant-numeric: tabular-nums;
+}
+.tf-mono { font-family: "Cascadia Mono", "Consolas", monospace; }
+
+/* ---------- 两块日志区：训练输出（实时）/ Loss 日志表（CSV） ---------- */
+/* 固定高度（用户 2026-10-18）：空态/几行/几十行都同一高度，不再随文字变高变矮 */
+.tf-live { height: 216px; max-height: none; min-height: 0; }   /* 外框总高 240 */
+.tf-csv { height: 176px; max-height: none; }                  /* 外框总高 200 */
+.tf-muted { color: var(--INK3); }
+.tf-warn { color: var(--WARN); }
+.tf-err { color: var(--ERR); }
+.tf-ok { color: var(--OK); }
+
+/* 模型权重命名：从参数里分离出来、放参数卡上方，下缘分隔线（用户 2026-10-15） */

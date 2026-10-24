@@ -1,0 +1,207 @@
+/* ============================================================
+   EAI_Studio · pages/train_pretrain.css ——「预训练」页样式
+   只复用 styles.css 已有的 .card/.card-head/.card-title/.card-sub/.card-body
+   .stats/.stat/.stat-label/.stat-val/.stat-hint/.hero/.stack/.btn/.btn-accent
+   .seg/.seg-opt/.muted-note/.mono-line/.flow 等；
+   颜色一律取 CSS 变量；字号一律 pt；图标只用内联 SVG。
+   缺失的类（.kv/.mono/.btn2/.field 等）用 tp- 前缀在此自建。
+   ============================================================ */
+
+/* 主区两栏（照 Tk body 权重 2 : 3） */
+.tp-grid {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 1120px) {
+  .tp-grid { grid-template-columns: 1fr; }
+}
+.tp-col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+
+/* 内联 SVG 图标容器（stroke=currentColor 继承文字色） */
+.tp-ic { display: inline-flex; flex: none; width: 15px; height: 15px; color: inherit; }
+.tp-ic svg { width: 100%; height: 100%; display: block; }
+
+/* ---------- 参数表单 ---------- */
+.tp-form { display: flex; flex-direction: column; gap: 8px; }
+.tp-field { display: flex; align-items: center; gap: 10px; }
+.tp-label { flex: none; width: 120px; font-size: 9pt; color: var(--INK2); }
+.tp-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  background: var(--CARD_ALT);
+  color: var(--INK);
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  padding: 5px 9px;
+  font-size: 10pt;
+  font-family: "Cascadia Mono", "Consolas", monospace;
+}
+/* 参数可编辑：聚焦高亮与 APIKEY 输入同款——顶格边框变色、无外发光（用户 2026-10-15） */
+.tp-input:focus {
+  outline: none;
+  border-color: var(--ACCENT_LINE);
+}
+.tp-input:disabled {
+  opacity: 1;
+  -webkit-text-fill-color: var(--INK2);
+  cursor: default;
+}
+.tp-field.wide .tp-input { font-size: 9pt; }
+
+.tp-sep { height: 1px; background: var(--LINE); margin: 6px 0; }
+
+/* ---------- 检查点横条（用户 2026-10-19）：与指令微调页同一套轨道/滑块 ---------- */
+.tp-range-box { flex: 1 1 auto; min-width: 0; height: 28px; display: flex; align-items: center; gap: 10px; }
+.tp-range {
+  -webkit-appearance: none; appearance: none;
+  flex: 1 1 auto; min-width: 0; height: 3px;
+  border-radius: 2px; background: var(--LINE); cursor: default;
+}
+.tp-range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 13px; height: 13px; border-radius: 50%;
+  background: var(--ACCENT);
+  border: 2px solid var(--CARD);
+  box-shadow: 0 0 0 1px var(--ACCENT_LINE);
+}
+.tp-range:active::-webkit-slider-thumb { transform: scale(1.08); }
+.tp-range:focus { outline: none; }
+.tp-range-v {
+  flex: none; width: 3.6em; text-align: right;
+  font-size: 9.5pt; color: var(--INK); font-variant-numeric: tabular-nums;
+}
+
+
+.tp-check { display: flex; align-items: center; gap: 9px; padding: 1px 0; }
+.tp-cb { width: 15px; height: 15px; margin: 0; accent-color: var(--ACCENT); }
+.tp-check-label { font-size: 10pt; color: var(--INK2); }
+
+.tp-help {
+  margin-top: 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--ACCENT_SOFT);
+  color: var(--ACCENT_TEXT);
+  font-size: 9pt;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---------- 操作栏 ---------- */
+/* 口径 2026-10-15：三个按钮等宽等高（100×36）、间距一致 8px（旧 150px 收窄；刷新钮 tp-btn2 旧来吃不到等宽） */
+.tp-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tp-actions .btn,
+.tp-actions .tp-btn2 {
+  box-sizing: border-box;
+  width: 100px;
+  height: 36px;
+  padding: 0;
+  margin: 0;
+  justify-content: center;
+}
+.tp-right { margin-left: auto; }
+
+.btn.tp-btn-ghost { background: var(--CARD_ALT); color: var(--INK2); border-color: var(--LINE); }
+.btn.tp-btn-danger { background: var(--ERR_SOFT); color: var(--ERR); border-color: var(--ERR); }
+/* 禁用/启用两态参考继续预训练（用户 2026-10-16）：不灰化、保留原色只降透明度 0.42 */
+.btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+.btn.tp-btn-danger:disabled:hover { background: var(--ERR_SOFT); }
+
+.tp-btn2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  padding: 7px 14px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-size: 10pt;
+  cursor: default;
+}
+.tp-btn2:hover { background: var(--BTN2_BG); color: var(--BTN2_FG); }
+.tp-btn2:disabled { opacity: 0.42; cursor: not-allowed; }
+
+.tp-note { margin: 0; font-size: 9pt; color: var(--INK3); line-height: 1.55; }
+
+.tp-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+/* ---------- 训练日志（外框定距 + 内层滚动，用户 2026-10-14） ----------
+   文字与边框的间距由 .tp-logbox 的 padding 恒定提供：滚动时文字在离边框 12px 处被裁，
+   底边间距和顶边一致；滚动条隐藏。 */
+.tp-logbox {
+  background: var(--LOG_BG);
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  padding: 12px;
+}
+.tp-log {
+  margin: 0;
+  max-height: 236px;   /* 外框总高不变：原 260 - 上下 padding 24 */
+  overflow: auto;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--LOG_FG);
+  font-size: 9pt;
+  line-height: 1.55;
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+  scrollbar-width: none;               /* 隐藏滚动条 */
+}
+.tp-log::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+/* ---------- Loss 曲线 ---------- */
+/* 高度由 JS 按窗口可用空间收口（fitChart，2026-10-17）：CSS 这里只留上下限与「撑满父框」 */
+.tp-chart {
+  height: 180px;                  /* 固定高度（用户 2026-10-18） */
+  min-height: 0;
+  background: var(--CARD_ALT);
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  padding: 8px;
+}
+.tp-chart svg { width: 100%; height: 100%; display: block; }
+.tp-chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 0;
+  color: var(--INK3);
+  font-size: 9pt;
+}
+
+/* ---------- 文字色调 ---------- */
+.tp-err { color: var(--ERR); }
+
+/* ---------- 训练中（训练时根容器带 .tp-running） ---------- */
+.tp-running .stat-val.ok { animation: tp-pulse 1.4s ease-in-out infinite; }
+/* 训练运行中：左侧参数整列置灰禁改（用户 2026-10-20）——灰的是参数列，右侧日志/曲线照常。 */
+.tp-running .tp-grid > .tp-col:first-child { opacity: .55; pointer-events: none; }
+@keyframes tp-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+/* ---------- 两块日志区：训练输出（实时）/ Loss 日志表（CSV） ---------- */
+/* 固定高度（用户 2026-10-18）：空态/几行/几十行都同一高度，不再随文字变高变矮 */
+.tp-log-live { height: 216px; max-height: none; min-height: 0; }   /* 外框总高 240 */
+.tp-log-csv { height: 186px; max-height: none; }                  /* 整 10 行（行高 18.6），底部不再切半行（用户 2026-10-19） */
+
+/* 模型权重命名：从参数里分离出来、放参数卡上方，下缘分隔线（用户 2026-10-15） */
+
+/* ---------- 与其它训练页一致（用户 2026-10-18） ----------
+   原先这一页自己搞了一套：页面自带 8px 滚动条 + .tp-grid 拉满剩余高度 +
+   右列最后一张卡（Loss 曲线）吸收余量，导致本页内容区比其他页窄 8px、
+   卡片位置/高度也不一样（曲线卡曾被压成 42px）。现在全部删掉：
+   滚动交给 .content（与预训练/指令微调/LoRA 各页同一条滚动轴），
+   卡片高度由内容决定，Loss 曲线固定 180。 */
+.tp-chart { height: 180px; min-height: 180px; }

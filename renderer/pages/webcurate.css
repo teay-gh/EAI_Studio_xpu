@@ -1,0 +1,62 @@
+/* ============================================================
+   网页整理页（导航键 webcurate）· 页面级样式
+   ------------------------------------------------------------
+   用户 2026-10-17：UI 与「响应蒸馏」完全一致。
+   所以这一页**不再自己写控件样式**：骨架、卡片、字段、按钮、日志、表格全部复用
+   pages/response.css 的 rs-* 类（webcurate.js 在 mount 时挂一份那张样式表）。
+   这里只留本页独有的两件小事（旧 wc-* 样式已随改版删除）。
+   ============================================================ */
+
+/* 页面根撑满：rs-panels 才吃得到剩余高度（styles.css 有 #plugRoot > * { flex: 0 0 auto }） */
+#plugRoot > .rs-panels { flex: 1 1 auto; min-height: 0; }
+
+/* 数据管理里点开的预览框：与响应蒸馏同一观感，但不能无限高 */
+.rs-panel[data-tab="data"] .rs-preview {
+  max-height: 300px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 数据管理表：本页 5 列（无勾选列），给主题/重复率定宽，日期 104px 才放得下（同响应蒸馏） */
+.rs-panel[data-tab="data"] .rs-table .col-fname { width: auto; }
+.rs-panel[data-tab="data"] .rs-table .col-count { width: 88px; text-align: right; }
+.rs-panel[data-tab="data"] .rs-table .col-topic { width: 220px; }
+.rs-panel[data-tab="data"] .rs-table .col-dup { width: 88px; text-align: right; }
+.rs-panel[data-tab="data"] .rs-table .col-date { width: 104px; }
+
+/* 高级设置（用户 2026-10-21）：检索式等收进弹窗 */
+/* 齿轮图标=EAI 设置同款、靠右；行高 22=蒸馏页底行（.a-checks）→ 采集底栏 y 与蒸馏页对齐 */
+.wc-adv-btn {
+  margin-top: 12px;
+  margin-left: auto;
+  display: flex; align-items: center; justify-content: center;
+  width: 24px; height: 22px;
+  padding: 0; border: 0; background: none;
+  color: var(--INK2); cursor: pointer; border-radius: 6px;
+}
+.wc-adv-btn:hover { background: var(--CARD_ALT); color: var(--INK); }
+.wc-adv-btn svg { width: 15px; height: 15px; display: block; }
+.wc-adv {
+  padding: 4px 20px 0;   /* 与标题/按钮行同 20px 边距（用户 2026-10-21：文本框别贴边框） */
+}
+
+/* 空态行（用户 2026-10-20）：没数据时「暂无产物」只是一行提示——
+   鼠标移上去不高亮、光标保持默认，别让它看起来像能点的行。 */
+.rs-panel[data-tab="data"] .rs-table tbody tr.rs-empty-row,
+.rs-panel[data-tab="data"] .rs-table tbody tr.rs-empty-row:hover { cursor: default; }
+.rs-panel[data-tab="data"] .rs-table tbody tr.rs-empty-row:hover td { background: transparent; }
+
+/* 下方内容框常驻（用户 2026-10-20）：没有产物时也保留这个框，不塌成一条白线；
+   有内容时高度仍由握把拖调。 */
+.rs-panel[data-tab="data"] .rs-preview {
+  min-height: 120px;
+  padding: 8px 10px;
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  background: var(--CARD_ALT);
+  font-family: 'Cascadia Mono', monospace;
+  font-size: 9pt;
+  line-height: 1.55;
+  overflow: auto;
+}

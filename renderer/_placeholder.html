@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <title>booting…</title>
+  <style>
+    html, body { margin: 0; }
+    body {
+      font-family: Consolas, "Cascadia Mono", monospace;
+      background: #F5F7FC; color: #0F1117;
+      padding: 18px 22px;
+    }
+    h1 { font-size: 16px; margin: 0 0 10px; }
+    pre { font-size: 12px; line-height: 1.5; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>EAI Studio · 外壳冒烟占位页（仅 --smoke 时加载）</h1>
+  <pre id="out">运行中…</pre>
+  <script>
+    // 冒烟测试：验证 preload 暴露的 window.eai IPC 全链路可用。
+    // 结果写进 document.title，外部（CDP /json）直接读标题即可取证。
+    (async () => {
+      const out = document.getElementById('out');
+      const r = {};
+
+      try {
+        const st = await window.eai.state();
+        r.state_before = st;
+        if (st && st.theme) document.documentElement.dataset.theme = st.theme;
+      } catch (e) { r.state_error = String(e); }
+
+      try { r.overview = await window.eai.overview(); }
+      catch (e) { r.overview_error = String(e); }
+
+      try {
+        const g = await window.eai.gpuStatus();
+        const f = g.feature || {};
+        r.gpuStatus_before = {
+          enabled: g.enabled,
+          disableRequested: g.disableRequested,
+          feature: {
+            gpu_compositing: f.gpu_compositing,
+            webgl: f.webgl,
+            webgl2: f.webgl2,
+            rasterization: f.rasterization,
+            '2d_canvas': f['2d_canvas']
+          },
+          hasGpuInfo: !!g.gpuInfo
+        };
+      } catch (e) { r.gpuStatus_error = String(e); }
+
+      try { r.isMax = await window.eai.win.isMax(); }
+      catch (e) { r.isMax_error = String(e); }
+
+      // setGpu / setTheme 的写盘实测：翻到相反值（外壳据此落盘 state.json），
+      // 返回值里带的是新值；跑完由外部读 state.json 核对确实写入。
+      // 只有加载时带 #probe 才跑，默认冒烟不改动磁盘状态。
+      if (location.hash === '#probe') {
+        try {
+          const b = r.state_before || {};
+          r.setGpu_result = await window.eai.setGpu(!b.gpu);
+        } catch (e) { r.setGpu_error = String(e); }
+        try {
+          const b = r.state_before || {};
+          r.setTheme_result = await window.eai.setTheme(b.theme === 'dark' ? 'light' : 'dark');
+        } catch (e) { r.setTheme_error = String(e); }
+        try { r.state_after = await window.eai.state(); }
+        catch (e) { r.state_after_error = String(e); }
+      }
+
+      try {
+        r.onMaxChange = typeof window.eai.onMaxChange === 'function' ? 'subscribed' : 'missing';
+        window.eai.onMaxChange((p) => { document.title = 'MAXCHANGE ' + JSON.stringify(p); });
+      } catch (e) { r.onMaxChange_error = String(e); }
+
+      r.hasOpenExternal = typeof window.eai.openExternal === 'function';
+      r.viewport = {
+        innerWidth: window.innerWidth,
+        innerHeight: window.innerHeight,
+        outerWidth: window.outerWidth,
+        outerHeight: window.outerHeight,
+        dpr: window.devicePixelRatio
+      };
+
+      out.textContent = JSON.stringify(r, null, 2);
+      document.title = 'SMOKE ' + JSON.stringify(r);
+      console.log('SMOKE ' + JSON.stringify(r));
+    })();
+  </script>
+</body>
+</html>

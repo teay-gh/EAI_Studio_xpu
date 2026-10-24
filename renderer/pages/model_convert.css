@@ -1,0 +1,167 @@
+/* ============ 模型转换页（用户 2026-10-18） ============
+   两栏：左 = 源权重 + 输出，右 = 转换状态 + 转换日志。
+   与导出模型页同一套栅格/输入井/按钮手感（值都抄自 export.css，不新造视觉）。 */
+
+.mc-grid {
+  display: grid;
+  grid-template-columns: minmax(380px, 1.12fr) minmax(340px, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.mc-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+/* ---------- 源权重 / 输出 ---------- */
+.mc-srcrow { display: flex; align-items: center; gap: 8px; }
+.mc-srcrow + .mc-srcrow { margin-top: 10px; }
+
+/* 权重命名行（用户 2026-10-18）：左侧小字标签 + 输入框 + 右侧「未命名/重复/绿点」
+   结构复用训练页的 .wn-row / .wn-hint。2026-10-21：与下方文件夹行的间距=上方
+   「权重路径↔参数」的间距（14px），不再取 10px。 */
+.mc-name { display: flex; align-items: center; gap: 10px; }
+.mc-name + .mc-srcrow { margin-top: 14px; }
+.mc-name-k {
+  flex: none;
+  /* 2026-10-23：原来是死宽 4.2em —— 英文「Weight name」会被挤成两行，
+     改成最小宽度 + 不换行（中文仍是 4.2em，位置不变；右边输入框右缘照样对齐） */
+  min-width: 4.2em;
+  white-space: nowrap;
+  font-size: 9pt;
+  color: var(--INK3);
+}
+.mc-name .wn-row { flex: 1 1 auto; min-width: 0; }
+.mc-name .wn-input { padding: 6px 10px; font-size: 10pt; }
+.mc-name .wn-hint { margin-right: 0; }
+
+.mc-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 10px;
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  background: var(--CARD_ALT);
+  color: var(--INK);
+  font-family: inherit;
+  font-size: 10pt;
+  line-height: 1.4;
+  outline: none;
+}
+.mc-input:focus { border-color: var(--ACCENT); }
+.mc-input:disabled { opacity: .55; }
+.mc-mono { font-family: "Cascadia Mono", "Consolas", monospace; }
+
+.mc-btn {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  height: 30px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 10pt;
+  font-family: inherit;
+  cursor: default;
+  white-space: nowrap;
+}
+.mc-btn:disabled { opacity: .45; }
+.mc-accent { background: var(--ACCENT); color: var(--INK_INV); }
+.mc-accent:hover:enabled { background: var(--ACCENT_HOVER); }
+.mc-soft { background: var(--ACCENT_SOFT); color: var(--ACCENT_TEXT); }
+.mc-soft:hover:enabled { color: var(--ACCENT); }
+.mc-ghost { background: var(--CARD_ALT); color: var(--INK2); border-color: var(--LINE); }
+.mc-ghost:hover:enabled { color: var(--INK); border-color: var(--INK3); }
+
+/* ---------- 识别结果 -------------------------------------------------------------------
+   四格等宽：格式 / 张量 / 参数 / 词表（和资源占用瓷片同一节奏，但不抢视觉） */
+.mc-facts {
+  display: grid;
+  /* 「格式」里是 "safetensors → pt" 要更宽；张量 / 参数 / 词表三格等宽（用户 2026-10-18） */
+  grid-template-columns: 1.45fr 1fr 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+.mc-fact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  background: var(--CARD_ALT);
+  min-width: 0;
+}
+.mc-fact-k { font-size: 9pt; color: var(--INK3); }
+.mc-fact-v {
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 10pt;
+  color: var(--INK);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- 保存至工程（勾选项，与训练页 AMP 同款） ---------- */
+.mc-sep { height: 1px; background: var(--LINE); margin: 14px 0; }
+.mc-check-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: default;
+  user-select: none;
+}
+.mc-check-label { font-size: 10pt; color: var(--INK2); }
+.mc-check-row:has(input:disabled) .mc-check-label { color: var(--INK3); }
+
+.mc-row { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+.mc-row .stat-dot { margin-left: 4px; }
+
+/* ---------- 右：状态行 ---------- */
+.mc-kv {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 7px 0;
+  border-top: 1px solid var(--LINE);
+}
+.mc-kv:first-child { border-top: 0; padding-top: 0; }
+/* 末行不留尾距（用户 2026-10-21）：「耗时」到卡底 = 「转换状态」到卡顶（文字边口径 22px）；
+   卡底内距 21→20.2 补掉行盒与文字边的 0.8px 行高余量，两头读数才严格相等 */
+.mc-kv:last-child { padding-bottom: 0; }
+.card.mc-statcard { padding-bottom: 19.2px; }
+.mc-kv-k { flex: none; width: 4.2em; font-size: 10pt; color: var(--INK3); }
+.mc-kv-v {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: right;
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 10pt;
+  color: var(--INK);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- 日志（与导出模型页同一高度/同配色） ---------- */
+.mc-log {
+  height: 214px;
+  overflow: auto;
+  padding: 10px 12px;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  background: var(--LOG_BG);
+  color: var(--LOG_FG);
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 9pt;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: text;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mc-log-line { display: block; }
+.mc-ok { color: var(--OK); }
+.mc-warn { color: var(--WARN); }
+.mc-err { color: var(--ERR); }

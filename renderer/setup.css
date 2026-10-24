@@ -1,0 +1,183 @@
+/* ============================================================
+   EAI Studio · 安装/环境检查页（2026-10-24）
+   只复用 styles.css 的设计令牌与 .btn/.seg/.win-btn，不引新色值。
+   2026-10-24 用户要求：去掉所有小字（副标题/行内说明/底部提示/标题栏后缀），
+   只留环境名、进度百分比和「正在下载/正在安装」这类实时状态。
+   ============================================================ */
+
+html, body { height: 100%; }
+
+.su-body {
+  margin: 0;
+  background: var(--BG);
+  color: var(--INK);
+  font-family: "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ---------- 主体 ---------- */
+.su-main {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;            /* 卡片垂直居中 */
+  justify-content: center;
+  padding: 24px 28px 28px;
+  overflow: auto;
+}
+
+.su-card {
+  width: 100%;
+  max-width: 720px;
+  background: var(--CARD);
+  border: 1px solid var(--LINE);
+  border-radius: 12px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .18);
+  padding: 26px 28px 20px;
+}
+
+.su-title {
+  margin: 0;
+  font-size: 15pt;
+  font-weight: 700;
+  color: var(--INK);
+  letter-spacing: .2px;
+}
+
+/* ---------- 环境清单 ---------- */
+.su-list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.su-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 232px;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--LINE_SOFT);
+  border-radius: 10px;
+  background: var(--CARD_ALT);
+  transition: border-color 140ms ease, background 140ms ease;
+}
+.su-row.run { border-color: var(--ACCENT_LINE); }
+.su-row.ok { border-color: var(--LINE_SOFT); }
+.su-row.error { border-color: var(--ERR); background: var(--ERR_SOFT); }
+
+.su-row-main { min-width: 0; }
+.su-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10pt;
+  font-weight: 700;
+  color: var(--INK);
+  white-space: nowrap;
+}
+.su-req:empty,
+.su-req[hidden] { display: none; }
+
+.su-req {
+  font-size: 8pt;
+  font-weight: 400;
+  color: var(--INK3);
+  padding: 1px 6px;
+  border: 1px solid var(--LINE);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* 行内实时状态（正在下载 / 正在安装 / 失败原因）：没有内容时整行不占位 */
+.su-desc {
+  margin-top: 4px;
+  font-size: 9pt;
+  color: var(--INK3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.su-desc:empty { display: none; }
+
+/* ---------- 右侧进度 ---------- */
+.su-prog { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.su-bar {
+  position: relative;
+  flex: 1 1 auto;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--LINE);
+  overflow: hidden;
+}
+.su-bar > i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  border-radius: 3px;
+  background: var(--ACCENT);
+  transition: width 220ms ease;
+}
+.su-row.ok .su-bar > i { background: var(--OK); }
+.su-row.error .su-bar > i { background: var(--ERR); }
+.su-pct {
+  flex: 0 0 auto;
+  width: 42px;
+  text-align: right;
+  font-size: 8.5pt;
+  color: var(--INK2);
+  font-variant-numeric: tabular-nums;
+}
+.su-row.ok .su-pct { color: var(--OK); }
+.su-row.error .su-pct { color: var(--ERR); }
+.su-row.idle .su-bar > i { background: var(--LINE); }
+
+/* ---------- 底部：语言段选（左） + 主按钮（右） ---------- */
+.su-foot {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* 与设置页「语言」卡片同款段选：容器带蓝色滑块，选中项只改字色 */
+.su-lang { position: relative; flex: 0 0 auto; }
+.su-lang .seg-opt {
+  padding: 0 14px;
+  height: 26px;
+  font-size: 9pt;
+}
+.su-lang .seg-thumb {
+  border-radius: 7px;
+}
+
+.su-btn { height: 30px; padding: 0 18px; font-size: 9.5pt; }
+.su-primary { background: var(--ACCENT); color: var(--INK_INV); border-color: var(--ACCENT); font-weight: 700; }
+.su-primary:hover:not(:disabled) { background: var(--ACCENT_HOVER); border-color: var(--ACCENT_HOVER); }
+.su-primary:disabled { opacity: .55; cursor: default; }
+
+/* ---------- 输出框（安装日志）：不显示滚动条 ---------- */
+.su-detail-body {
+  margin: 16px 0 0;
+  padding: 10px 12px;
+  max-height: 168px;
+  overflow: auto;
+  border: 1px solid var(--LINE_SOFT);
+  border-radius: 10px;
+  background: var(--LOG_BG);
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 8.5pt;
+  line-height: 1.55;
+  color: var(--LOG_FG);
+  white-space: pre-wrap;
+  word-break: break-all;
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* 旧 Edge */
+}
+.su-detail-body::-webkit-scrollbar { width: 0; height: 0; }
+
+.su-loading { font-size: 9.5pt; color: var(--INK3); padding: 6px 2px; }

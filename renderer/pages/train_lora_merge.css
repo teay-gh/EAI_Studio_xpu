@@ -1,0 +1,126 @@
+/* EAI_Studio · pages/train_lora_merge.css ——「LoRA 合并」页样式（用户 2026-10-17）
+   与预训练页同口径：grid 2fr/3fr gap 20、卡片间距 20、按钮 100×36 间距 8、
+   瓷片 132×100、日志灰框 1px 边框 + 圆角 10 + 内距 12。 */
+
+.lm-grid { display: grid; grid-template-columns: 2fr 3fr; gap: 20px; align-items: start; }
+@media (max-width: 900px) { .lm-grid { grid-template-columns: 1fr; } }
+.lm-col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+
+.lm-divider { height: 0; border: 0; border-top: 1px solid var(--LINE); margin: 14px 0 16px; }
+
+/* 权重行 = 训练页 .tc-path-row 同款（用户 2026-10-17：与其它页 UI 保持一致）
+   标签在上 9pt/INK2 → 6px → [8px 点][选择 26px][文件名 9pt 等宽 INK2][大小 9pt INK3]，行内距 4px 0、无边框无底色 */
+.lm-path-block { margin-bottom: 12px; }
+.lm-k { font-size: 9pt; color: var(--INK2); margin: 0 0 6px; }
+.lm-path-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.lm-dot {
+  flex: none;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--INK3);
+  opacity: 0.45;
+}
+.lm-dot.ok { background: var(--OK); opacity: 1; }
+.lm-pick {
+  appearance: none;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  padding: 0 12px;
+  border: 1px solid var(--LINE);
+  border-radius: 6px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-size: 9pt;
+  cursor: pointer;
+}
+.lm-pick:hover { background: var(--BTN2_BG); color: var(--BTN2_FG); }
+.lm-file {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 9pt;
+  color: var(--INK2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lm-file.empty { color: var(--INK3); }
+.lm-size { flex: none; font-size: 9pt; color: var(--INK3); font-variant-numeric: tabular-nums; }
+
+/* 命名输入框（同训练页口径，29.5px 高） */
+.lm-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+  padding: 6px 10px;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  background: var(--CARD_ALT);
+  color: var(--INK);
+  font-size: 10pt;
+  /* 命名框字体与训练页一致（用户 2026-10-17）：原来没写 font-family → 落回 Arial，
+     其他页 .tc/.tf/.tl/.tp-input 都是 Cascadia Mono，占位「输出权重名」看起来不一样 */
+  font-family: "Cascadia Mono", "Consolas", monospace;
+}
+
+/* 动作行 */
+.lm-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.lm-actions .btn,
+.lm-actions .lm-btn2 {
+  box-sizing: border-box;
+  width: 100px;
+  height: 36px;
+  padding: 0;
+  margin: 0;
+  justify-content: center;
+}
+.btn:disabled { opacity: 0.42; cursor: not-allowed; }
+.lm-btn2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  padding: 7px 14px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-size: 10pt;
+  cursor: default;
+}
+.lm-btn2:hover { background: var(--BTN2_BG); color: var(--BTN2_FG); }
+.lm-ic { display: inline-flex; flex: none; width: 15px; height: 15px; color: inherit; }
+.lm-ic svg { width: 100%; height: 100%; display: block; }
+
+/* 训练输出 */
+.lm-logbox {
+  background: var(--LOG_BG);
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  padding: 12px;
+  height: 240px;                  /* 固定高度（用户 2026-10-18）：不随日志行数变 */
+  max-height: none;
+  box-sizing: border-box;
+  overflow: auto;
+}
+.lm-log {
+  margin: 0;
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 9.5pt;
+  line-height: 1.55;
+  color: var(--INK2);
+  white-space: pre-wrap;
+  word-break: break-all;
+  min-height: 38px;
+}
+.lm-log.lm-err { color: var(--ERR); }

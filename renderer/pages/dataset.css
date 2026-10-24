@@ -1,0 +1,432 @@
+/* ============================================================
+   EAI_Studio · pages/dataset.css ——「数据集」页样式
+   只复用 styles.css 已有的 .stack/.card/.stats/.stat/.seg/.btn 等，
+   颜色一律取 CSS 变量；字号 pt；图标由样式统一尺寸。
+   （styles.css 里没有 .kv/.muted/.mono/.btn2/.field，故本页用 ds- 前缀自建）
+   ============================================================ */
+
+/* 内联 SVG 图标容器（stroke=currentColor 由 .ds-ic 继承文字色） */
+.ds-ic {
+  display: inline-flex;
+  flex: none;
+  width: 15px;
+  height: 15px;
+  color: inherit;
+}
+.ds-ic svg { width: 100%; height: 100%; display: block; }
+
+/* ---------- 分段行 ---------- */
+/* 顶栏：页签靠左、筛选整组靠右（用户 2026-10-15 数据集整页改版） */
+.ds-seg-row { display: flex; align-items: center; gap: 12px; }
+.ds-fsegs { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ds-seg-row .ds-fseg { margin-left: auto; }
+.ds-fseg .seg-opt { min-width: 0; padding: 7px 16px; }   /* 与训练方式横条同高（用户 2026-10-16：以训练方式为准） */
+
+/* 搜索/筛选条改位（用户 2026-10-16）：筛选框在左、搜索钉右，
+   标注/可用两页切换（筛选框显隐）时搜索框位置不动 */
+.rp-bar.rp-bar-split { justify-content: flex-start; margin-bottom: 0; }
+.rp-bar-split .rp-search { margin-left: auto; }
+
+/* ---------- 数据集卡片（每页签的数据集用卡片展示，用户 2026-10-15） ---------- */
+.ds-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));   /* 列宽对齐仓库页（用户 2026-10-18） */
+  gap: 12px;
+  margin-top: 0;   /* 间距对齐（用户 2026-10-16）：卡片到搜索栏 = 横条到搜索栏 = 20px（stack 间距） */
+}
+.ds-cards-empty { padding: 16px 6px; color: var(--INK3); font-size: 10pt; min-height: 20px; }
+.ds-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  background: var(--CARD_ALT);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: border-color 140ms ease, box-shadow 140ms ease, opacity 140ms ease;
+}
+/* 悬浮轻高亮（同仓库卡口径：明显但不过头） */
+.ds-card:hover { border-color: var(--ACCENT_LINE); }
+.ds-card.on { border-color: var(--ACCENT_LINE); }
+.ds-card.off { opacity: .78; }
+.ds-card.bad { border-color: var(--ERR); }
+.ds-card-top { display: flex; align-items: center; gap: 10px; }
+.ds-card-name {
+  flex: 1 1 auto; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 10pt; color: var(--INK);
+}
+.ds-card-chips { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.ds-card-tag {
+  font-size: 8.5pt;
+  color: var(--INK2);
+  background: var(--BTN2_BG);
+  border: 1px solid var(--LINE);
+  border-radius: 6px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+.ds-card-tag.use { color: var(--INK); background: var(--CARD); }
+.ds-card-stats { font-size: 9pt; color: var(--INK3); }
+
+/* ---------- 格式要求提示条 ---------- */
+.ds-hint {
+  display: flex;                                 /* 文字 + 示例 + ✕ 一行 */
+  align-items: center;
+  gap: 10px;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 9pt;
+  line-height: 1.5;
+  border: 1px solid transparent;
+}
+.ds-hint[hidden] { display: none; }              /* 点 ✕ 后整条不显示（没有异常文件时） */
+.ds-hint-text { flex: 1 1 auto; min-width: 0; }
+.ds-hint-btn {
+  flex: 0 0 auto;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 7px;
+  padding: 1px 10px;
+  cursor: pointer;
+  opacity: .85;
+}
+.ds-hint-btn:hover { opacity: 1; }
+.ds-hint-close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: .7;
+}
+.ds-hint-close:hover { background: var(--CLOSE_HOVER); opacity: 1; }
+
+/* ---------- 示例弹窗 ---------- */
+.ds-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(12, 14, 20, .42);
+}
+.ds-modal {
+  width: min(680px, 80vw);
+  max-height: 72vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--CARD);
+  border: 1px solid var(--LINE);
+  border-radius: 12px;
+  box-shadow: var(--SHADOW);
+}
+.ds-modal-head { display: flex; align-items: center; gap: 10px; padding: 14px 14px 4px 18px; }
+.ds-modal-title { flex: 1 1 auto; font-size: 11pt; font-weight: 600; color: var(--INK); }
+.ds-modal-x {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; padding: 0;
+  border: 0; border-radius: 6px; background: transparent;
+  color: var(--INK2); cursor: pointer;
+}
+.ds-modal-x:hover { background: var(--CLOSE_HOVER); color: var(--INK); }
+/* 示例本文：每种格式一个代码框（等宽 + 井底 + 描边，观感同「格式检查」的 .ds-pre）
+   块与块之间 gap 10px 分隔；滚动条交给外层 .ds-modal-body */
+.ds-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 10px 18px 18px;
+  max-height: 56vh;
+  overflow: auto;
+}
+/* 一组 = 格式名称 + 它的代码框 */
+.ds-modal-item { display: flex; flex-direction: column; gap: 6px; }
+.ds-modal-name { font-size: 10pt; line-height: 1.3; color: var(--INK2); }
+.ds-modal-pre {
+  margin: 0;
+  padding: 12px 14px;
+  white-space: pre-wrap;
+  background: var(--CARD_ALT);
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 9.5pt;
+  line-height: 1.7;
+  color: var(--INK2);
+}
+.ds-hint.accent {
+  background: var(--ACCENT_SOFT);
+  color: var(--ACCENT_TEXT);
+  border-color: var(--ACCENT_LINE);
+}
+.ds-hint.info {
+  background: var(--INFO_SOFT);
+  color: var(--INFO);
+  border-color: var(--INFO);
+}
+
+/* ---------- 工具栏 ---------- */
+.ds-toolbar { display: flex; align-items: center; gap: 10px; }
+.ds-toolbar .ds-btn2 { margin-right: auto; }
+
+.ds-btn2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  padding: 7px 14px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-size: 10pt;
+  cursor: default;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+.ds-btn2:hover { background: var(--BTN2_BG); color: var(--BTN2_FG); }
+
+.btn-accent, .ds-btn2 { display: inline-flex; align-items: center; gap: 7px; }
+
+/* 合并按钮：桥未接入 → 置灰显示 */
+.btn-accent:disabled,
+.ds-merge:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+.btn-accent:disabled:hover { background: var(--ACCENT); }
+
+.ds-note { margin: 0; font-size: 9pt; color: var(--INK3); }
+.ds-note[hidden] { display: none; }          /* 空提示行不占位（dataset.js 的 setNote 会置 hidden） */
+
+/* 合并提示行（结果写这里）+ 进度日志 */
+.ds-merge-status { line-height: 1.55; word-break: break-word; }
+.ds-merge-status.ds-ok { color: var(--OK); }
+.ds-merge-status.ds-warn { color: var(--WARN); }
+.ds-merge-status.ds-err { color: var(--ERR); }
+.ds-merge-log {
+  margin: 0;
+  max-height: 120px;
+  overflow: auto;
+  background: var(--CARD_ALT);
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  padding: 8px 12px;
+  color: var(--INK3);
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 9pt;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---------- 主区两栏（Tk 版权重 3 : 2） ---------- */
+.ds-grid {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 20px;
+  /* 两列底部齐平：左卡被拉高、右列卡片撑满整列（无文件时也不会一高一矮） */
+  align-items: stretch;
+}
+.ds-col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.ds-col > .card { flex: 1 1 auto; display: flex; flex-direction: column; }
+/* 右列卡片撑满整列（底边和左卡平齐）：卡片体、里面的灰框也一起纵向拉伸，
+   有文件时灰框跟着长到卡片底，无文件时仍是 min-height 63px（两行字高度） */
+.ds-col > .card > .card-body { display: flex; flex-direction: column; flex: 1 1 auto; }
+.ds-col > .card > .card-body > .ds-pre { flex: 1 1 auto; }
+@media (max-width: 1080px) {
+  .ds-grid { grid-template-columns: 1fr; }
+}
+
+/* ---------- 工程数据目录 ---------- */
+.ds-roots {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--CARD_ALT);
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 9pt;
+  color: var(--INK2);
+}
+.ds-root-line { color: var(--INK3); }
+
+/* 目录卡：添加按钮 + 每行「✕」移出 */
+.ds-roots-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+.ds-root { display: flex; align-items: center; gap: 6px; width: 100%; }
+.ds-root-path { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+                white-space: nowrap; }
+.ds-root-del { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+               width: 22px; height: 22px; padding: 0; border: 1px solid transparent;
+               border-radius: 6px; background: transparent; color: var(--INK3); cursor: default; }
+.ds-root-del:hover { border-color: var(--LINE); color: var(--ERR); }
+.ds-root-del .ds-ic, .ds-root-del svg { width: 13px; height: 13px; display: block; }
+.ds-root { word-break: break-all; }
+
+/* ---------- 文件表 ---------- */
+.ds-table-wrap { max-height: 420px; overflow: auto; }
+.ds-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10pt;
+  table-layout: fixed;
+}
+.ds-table th {
+  position: sticky;
+  top: 0;
+  text-align: left;
+  font-weight: 700;
+  font-size: 9pt;
+  color: var(--INK2);
+  background: var(--CARD);
+  border-bottom: 1px solid var(--LINE);
+  padding: 6px 8px;
+  white-space: nowrap;
+}
+.ds-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--LINE_SOFT);
+  color: var(--INK);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ds-table tr:last-child td { border-bottom: 0; }
+.ds-table tbody tr:hover { background: var(--CARD_ALT); }
+.ds-table tr.off { color: var(--INK3); }
+.ds-table tr.off td { color: var(--INK3); }
+
+.ds-c-pick  { width: 40px; text-align: center; }
+.ds-c-kind  { width: 72px; }
+.ds-c-chars { width: 90px; text-align: right; }
+.ds-c-fmt   { width: 64px; }
+.ds-c-del   { width: 56px; text-align: center; }
+
+/* 删除列：✕ 进回收站 */
+.ds-file-del {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--INK3);
+  cursor: pointer;
+}
+.ds-file-del:hover { color: var(--ERR); border-color: var(--ERR); }
+.ds-file-del svg { width: 14px; height: 14px; }
+
+/* 选择框：本体=input（styles.css 复选框组，与蒸馏页数据管理同款同源，用户 2026-10-16）；
+   标签只当容器，不再自画框 */
+.ds-pick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* 类型徽章 */
+.ds-badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 6px;
+  font-size: 9pt;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+}
+.ds-badge.chat  { background: var(--ACCENT_SOFT); color: var(--ACCENT_TEXT); }
+.ds-badge.jsonl { background: var(--INFO_SOFT);   color: var(--INFO); }
+.ds-badge.plain { background: var(--OK_SOFT);     color: var(--OK); }
+
+.ds-row-blank td { height: 34px; }                /* 文件清单空态：多留一点白 */
+/* 空态留白行不能有「被选中」的样子：不吃 hover 底色、不长按选中 */
+.ds-table tbody tr.ds-row-blank,
+.ds-table tbody tr.ds-row-blank:hover { background: transparent; cursor: default; }
+.ds-table tbody tr.ds-row-blank td { user-select: none; }
+
+.ds-empty {
+  padding: 20px 8px;
+  color: var(--INK3);
+  font-size: 10pt;
+  white-space: normal;
+}
+
+/* ---------- 格式检查 ---------- */
+.ds-pre {
+  margin: 0;
+  min-height: 63px;                              /* 空白时保留「两行字」的高度（实测 2 行 = 63.2px） */
+  max-height: 300px;
+  overflow: auto;
+  background: var(--CARD_ALT);
+  border: 1px solid var(--LINE);
+  border-radius: 10px;
+  padding: 12px;
+  color: var(--INK2);
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 9pt;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---------- 合并预览 ---------- */
+.ds-kv { display: flex; flex-direction: column; gap: 8px; }
+.ds-kv-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--LINE_SOFT);
+  padding-bottom: 8px;
+}
+.ds-kv-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.ds-k { font-size: 9pt; color: var(--INK3); }
+.ds-v {
+  font-size: 13pt;
+  font-weight: 700;
+  color: var(--INK);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 文字色调 ---------- */
+.ds-mono { font-family: "Cascadia Mono", "Consolas", monospace; }
+.ds-muted { color: var(--INK3); }
+.ds-warn { color: var(--WARN); }
+.ds-err { color: var(--ERR); }
+
+/* ---------- 卡片 v2（用户 2026-10-15：仓库卡片格式 + 勾选框/框选） ----------
+   卡体行样式直接用 repo.css 的 .rp-card/.rp-head/.rp-row（dataset.js 挂载时注入 repo.css）。 */
+.ds-card2 { cursor: pointer; }
+.ds-card2:hover { border-color: var(--ACCENT_LINE); }
+.ds-card2.on { border-color: var(--ACCENT_LINE); box-shadow: 0 0 0 1px var(--ACCENT_LINE); }
+.ds-pick { display: inline-flex; align-items: center; margin-right: 2px; cursor: pointer; }
+.ds-pick input { width: 15px; height: 15px; accent-color: var(--ACCENT); cursor: pointer; margin: 0; }
+
+/* ---------- 卡片进场（用户 2026-10-17） ----------
+   切进数据集页、首次把卡片渲染出来时淡入 + 轻微上移，逐张错开 20ms（最多 8 张的错峰，之后一起进来）；
+   只在首帧播一次（renderCards 用 .enter 开关），搜索/勾选重渲染不重播，避免打字时满屏抖。 */
+@keyframes dsCardIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ds-cards.enter .ds-card2 {
+  animation: dsCardIn 260ms cubic-bezier(.34, 1, .5, 1) both;
+  animation-delay: calc(var(--ds-i, 0) * 20ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-cards.enter .ds-card2 { animation: none; }
+}
+

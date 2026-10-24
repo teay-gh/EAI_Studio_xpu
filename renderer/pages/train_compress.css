@@ -1,0 +1,81 @@
+/* train_compress.css —— 模型裁切 / 量化页样式（这页原来没有自己的 CSS，一直 404，2026-10-23 补上）。
+   只放这页特有的东西；cm-* 基础样式在 styles.css。 */
+
+/* 校准语料多选药丸（用户 2026-10-23）：与 LoRA 页「挂载目标层」.tl-chip 同款外观 */
+.cm-chips-2 {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.cm-chip {
+  height: 29px;   /* 与参数输入框同高（原来 28px，比输入框矮 1px） */
+  padding: 0 6px;
+  border: 1px solid var(--LINE);
+  border-radius: 8px;
+  background: var(--CARD_ALT);
+  color: var(--INK2);
+  font-family: inherit;
+  font-size: 9.5pt;
+  line-height: 27px;
+  text-align: center;
+  cursor: default;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: transform 300ms cubic-bezier(.34, 1.32, .5, 1),
+              background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+/* 按压：按下 94% + 90ms 收缩，松手 300ms 回弹（与 .tl-chip 一致） */
+.cm-chip:active { transform: scale(.94); transition: transform 90ms ease; }
+.cm-chip:hover { background: var(--BTN2_BG); color: var(--BTN2_FG); }
+.cm-chip.on {
+  background: var(--ACCENT);
+  border-color: var(--ACCENT);
+  color: var(--INK_INV);
+}
+/* 参数行改三列网格（用户 2026-10-23）：标签列 / 控件列 / 状态小球列，所有行共用同一组列宽
+   —— 左边（标签→控件）和右边（控件→小球）都严格对齐。原来一行一个 flex，各算各的宽度，
+   连标签本身都能差 2px（稀疏度 118 vs 裁切方法 120），控件左缘跟着错开。
+   最小窗口（900px）时标签列先收到 88px，把宽度让给控件。 */
+.cm-rows .cm-row {
+  display: grid;
+  grid-template-columns: minmax(88px, 120px) minmax(0, 1fr) auto;
+  column-gap: 10px;
+  align-items: center;
+}
+
+/* 段选不许换行：.cm-seg 全局设了 flex-wrap: wrap，而它的高度是定死的 27.5px ——
+   量化方案三个选项（W8A16 / W4A16 / FP8_DYNAMIC）在卡片里放不下时第三项会折到第二行，
+   直接压到下一行参数上（实测 FP8_DYNAMIC 掉到 seg 外面盖住「校准样本数」）。
+   改成不换行 + 文字省略号，三个选项平分控件列。 */
+.cm-rows .seg.cm-seg {
+  flex-wrap: nowrap;
+  overflow: hidden;
+  height: 29px;   /* 与参数输入框同高（输入框 10pt 行高算出 29px），整块参数区行高一致 */
+}
+
+/* 窄窗口别把控件撑出右缘（用户 2026-10-23）：药丸/段选/输入框各有最小宽度，
+   不设 min-width:0 时会把「自己的边框」顶到单元格之外（最小窗口时输入框实测溢出 10px），
+   超出的部分交给省略号截断 */
+.cm-rows .cm-input,
+.cm-chips-2 > .cm-chip,
+.cm-row .seg.cm-seg > .seg-opt {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 段选文字小一号 12px → 11px（用户 2026-10-23）：三个选项挤在 202px 里，
+   12px 时 W8A16 实测 51/52、FP8_DYNAMIC 90/93 已经在被截，11px 后全部放得下。
+   注意只作用于 .seg-opt ---- 上面那个共享块里带 .cm-input，写进去会把命名框和参数框
+   一起缩成 11px（量化的命名框就是这么比别的页小一号的）。 */
+.cm-row .seg.cm-seg > .seg-opt {
+  font-size: 11px;
+}
+
+/* 隐形小球：几何完全照抄 .pd-dot（8px + margin-left calc(18px-gap) + margin-right -3px），
+   只把颜色藏掉。段选行、药丸行末尾各放一个，右缘就与参数输入框一致，且不随窗口宽度漂移 */
+.cm-dot-ghost { visibility: hidden; pointer-events: none; }
