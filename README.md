@@ -7,7 +7,7 @@ EAI Studio 是一个 Windows 桌面应用，把大模型微调的整条链路收
 数据、权重、训练过程都留在本机；除了你自己配置的云端模型接口，软件不会把任何东西发到外面。
 
 <p align="center">
-  <img src="docs/ui-zh-distill.png" width="32%" alt="语料蒸馏" />
+  <img src="docs/ui-zh-distill.png" width="32%" alt="语料整理" />
   <img src="docs/ui-zh-pretrain.png" width="32%" alt="预训练" />
   <img src="docs/ui-zh-chat.png" width="32%" alt="对话验证" />
 </p>
