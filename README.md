@@ -21,7 +21,7 @@ EAI Studio 是一个 Windows 桌面应用，把大模型微调的整条链路收
 - **验模型** —— 内置对话页直接加载本地模型，可以挂不同的 LoRA 对比效果；满意了再转换格式、导出交付。
 - **看得清** —— 训练进度、损失曲线、运行日志都在界面里，出问题有日志可查，不用翻命令行。
 
-开始用：解压后双击 `Start.bat`。第一次会引导你把运行环境装好（点一次「开始安装」），装完自动进入主界面；以后每次双击直接打开。界面中文 / English 随时切换，首次安装需要联网，之后可以完全离线使用。
+开始用：解压后双击 `Start.bat`。第一次会引导你把运行环境装好（点一次「开始安装」），装完自动进入主界面；以后每次双击直接打开。
 
 此版本为XPU版本。
 
@@ -52,7 +52,7 @@ What you can do with it:
 - **Try before you ship** — a built-in chat page loads local models and lets you swap LoRAs to compare results, then convert the format and export.
 - **See what is happening** — progress, loss curves and runtime logs live inside the app, so problems are visible without digging through terminals.
 
-Getting started: extract the archive and double-click `Start.bat`. The first launch walks you through the runtime install (one click on "Install"), then opens the main window; later launches go straight in. The UI switches between Chinese and English at any time, and the first install is the only step that needs a network connection.
+Getting started: extract the archive and double-click `Start.bat`. The first launch walks you through the runtime install (one click on "Install"), then opens the main window; later launches go straight in.
 
 This is the XPU edition.
 
