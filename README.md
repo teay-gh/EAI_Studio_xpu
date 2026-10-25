@@ -25,6 +25,8 @@ EAI Studio 是一个 Windows 桌面应用，把大模型微调的整条链路收
 
 此版本为XPU版本。
 
+问题反馈：teay_cha@foxmail.com
+
 ---
 
 # EAI Studio
@@ -53,6 +55,8 @@ What you can do with it:
 Getting started: extract the archive and double-click `Start.bat`. The first launch walks you through the runtime install (one click on "Install"), then opens the main window; later launches go straight in. The UI switches between Chinese and English at any time, and the first install is the only step that needs a network connection.
 
 This is the XPU edition.
+
+Questions or feedback: teay_cha@foxmail.com
 
 ---
 
